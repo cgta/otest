@@ -16,6 +16,7 @@ object OtestBuild extends Build {
   }
 
   object Versions {
+    lazy val otest = "0.1.0-SNAPSHOT"
     lazy val scala = "2.10.2"
   }
 
@@ -95,12 +96,16 @@ object OtestBuild extends Build {
 
   lazy val orunnerCross = new SjsCrossBuild("orunner")
   lazy val orunner = orunnerCross.shared
+    .settings(libraryDependencies += "org.scala-sbt" % "test-interface" % "1.0")
   lazy val orunnerJvm = orunnerCross.jvm
+    .settings(libraryDependencies += "org.scala-sbt" % "test-interface" % "1.0")
   lazy val orunnerSjs = orunnerCross.sjs
 
   lazy val osampletestsCross = new SjsCrossBuild("osampletests")
   lazy val osampletests = osampletestsCross.shared
+    .settings(libraryDependencies += "biz.cgta" %% "otest" % Versions.otest)
   lazy val osampletestsJvm = osampletestsCross.jvm
+    .settings(libraryDependencies += "biz.cgta" %% "otest" % Versions.otest)
   lazy val osampletestsSjs = osampletestsCross.sjs
 
 
@@ -109,5 +114,10 @@ object OtestBuild extends Build {
       otestJvm, otestSjs,
       orunnerJvm, orunnerSjs
     )
+
+  lazy val jvmOnly = Project("jvm-only", file("jvm-only"))
+    .aggregate(otestJvm, otestSjs)
+    .settings(basicSettings: _*)
+    .settings(publish := {})
 
 }

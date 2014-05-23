@@ -22,10 +22,12 @@ object AssertionMacros {
         body
       } catch {
         case e: $t=>_cAught =true
+        case t: Throwable => throw cgta.otest.AssertionFailure.intercept($tname, Some(t))
       }
       if(!_cAught_){
         throw cgta.otest.AssertionFailure.intercept($tname)
-      }"""
+      }
+      """
     c.Expr[Unit](null)
   }
 }

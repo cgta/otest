@@ -35,7 +35,7 @@ trait AssertionsMixin {
   }
 
   def fail(msg: String = null) {
-    throw new AssertionFailure(s"fail() called${if (msg != null) s": $msg" else ""}")
+    throw AssertionFailure.fail(msg)
   }
 
   def intercept[T](body: Unit): Unit = macro AssertionMacros.intercept[T]
@@ -46,8 +46,23 @@ trait AssertionsMixin {
 
 object AssertionFailure {
   def basic(expected: String, actual: String, clue: String): AssertionFailure = {
-    new AssertionFailure(s"Expected [$expected] but got [$actual]${if (clue != null) s" clue: $clue" else ""}")
+    new AssertionFailure(s"Expected [$expected] but got [$actual]${if (clue != null) s" clue: $clue" else ""}", null)
+  }
+
+  def fail(msg: String): AssertionFailure = {
+    new AssertionFailure(s"fail() called${if (msg != null) s": $msg" else ""}", null)
+  }
+
+  def intercept(expectedTypeName: String, unexpected: Option[Throwable]): AssertionFailure = {
+    unexpected match {
+      case None =>
+        new AssertionFailure(s"Expected to intercept [$expectedTypeName] but nothing was thrown.", null)
+      case Some(unexpected) =>
+        val unexpectedTypeName = unexpected.getClass.toString
+        new AssertionFailure(s"Expected to intercept [$expectedTypeName] but caught [$unexpectedTypeName]", unexpected)
+    }
   }
 }
 
-class AssertionFailure(reason: String) extends RuntimeException(reason)
+class AssertionFailure(reason: String, cause: Throwable) extends RuntimeException(reason, cause) {
+}
