@@ -3,10 +3,9 @@ import org.sbtidea.SbtIdeaPlugin
 import sbt._
 import sbt.Keys._
 import scala.scalajs.sbtplugin.ScalaJSPlugin
-import scala.scalajs.sbtplugin.ScalaJSPlugin.ScalaJSKeys
 
 
-object OrangeBuild extends Build {
+object OtestBuild extends Build {
   sys.props("scalac.patmat.analysisBudget") = "512"
 
 
@@ -22,6 +21,7 @@ object OrangeBuild extends Build {
 
   lazy val basicSettings =
     Seq[Setting[_]](
+      organization := "biz.cgta",
       scalaVersion := Versions.scala,
       shellPrompt <<= (thisProjectRef, version) {
         (id, v) => _ => "orange:%s:%s> ".format(id.project, v)
@@ -97,5 +97,17 @@ object OrangeBuild extends Build {
   lazy val orunner = orunnerCross.shared
   lazy val orunnerJvm = orunnerCross.jvm
   lazy val orunnerSjs = orunnerCross.sjs
+
+  lazy val osampletestsCross = new SjsCrossBuild("osampletests")
+  lazy val osampletests = osampletestsCross.shared
+  lazy val osampletestsJvm = osampletestsCross.jvm
+  lazy val osampletestsSjs = osampletestsCross.sjs
+
+
+  lazy val root = Project("root", file("."))
+    .aggregate(
+      otestJvm, otestSjs,
+      orunnerJvm, orunnerSjs
+    )
 
 }

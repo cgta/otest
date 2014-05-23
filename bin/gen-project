@@ -1,0 +1,16 @@
+#!/bin/bash -eax
+
+
+function replace {
+  NAME=$1
+  MODULE="$NAME-sjs.iml"
+  if [ -f "$MODULE" ]; then
+    head -n -2 .idea_modules/$MODULE > $MODULE
+    echo '    <orderEntry type="module" module-name="'$NAME'" exported=""/>' >> $MODULE
+    echo '  </component>' >> $MODULE
+    echo '</module>' >> $MODULE
+    mv $MODULE .idea_modules/
+  fi
+}
+
+#replace oscala

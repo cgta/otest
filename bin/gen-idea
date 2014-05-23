@@ -1,0 +1,24 @@
+#!/bin/bash -eax
+
+DIR=$( cd "$( dirname "$0" )" && pwd )
+
+#Clean things out
+if [ "$(ls -A .idea/libraries)" ]; then
+  rm .idea/libraries/*
+fi
+
+if [ "$(ls -A .idea_modules)" ]; then
+  rm .idea_modules/*
+fi
+
+#Obviously gen the idea files
+sbt gen-idea
+
+#Make idea use it's own build directories so that it doesn't fight sbt
+find .idea_modules -maxdepth 1 -type f -exec "$DIR"/filter-module '{}' \;
+
+#Remove all the dependencies from root for other projects
+grep -v 'type="module"' .idea_modules/root.iml > root.iml
+
+mv root.iml .idea_modules/
+
