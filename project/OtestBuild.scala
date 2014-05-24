@@ -1,8 +1,7 @@
-
-import org.sbtidea.SbtIdeaPlugin
 import sbt._
 import sbt.Keys._
 import scala.scalajs.sbtplugin.ScalaJSPlugin
+import org.sbtidea.SbtIdeaPlugin
 
 
 object OtestBuild extends Build {
@@ -25,7 +24,7 @@ object OtestBuild extends Build {
       organization := "biz.cgta",
       scalaVersion := Versions.scala,
       shellPrompt <<= (thisProjectRef, version) {
-        (id, v) => _ => "orange:%s:%s> ".format(id.project, v)
+        (id, v) => _ => "otest-build:%s:%s> ".format(id.project, v)
       }
     ) ++ scalacSettings
 
@@ -43,9 +42,10 @@ object OtestBuild extends Build {
     addCompilerPlugin(Libs.macrosPlugin))
 
   object Libs {
-    val macrosQuasi = List("org.scalamacros" %% "quasiquotes" % "2.0.0")
+    val macrosQuasi  = List("org.scalamacros" %% "quasiquotes" % "2.0.0")
     val macrosPlugin = "org.scalamacros" %% "paradise" % "2.0.0" cross CrossVersion.full
   }
+
 
   def sharedProject(name: String) = Project(name, file(name))
     .settings(basicSettings: _*)
@@ -63,10 +63,10 @@ object OtestBuild extends Build {
 
   //Sets up projects that have code for both the jvm and js environments
   class SjsCrossBuild(val name: String,
-                      val deps: Seq[SjsCrossBuild] = Seq.empty,
-                      val sharedSettings: Seq[Def.Setting[_]] = Seq.empty,
-                      val jvmLibs: Seq[ModuleID] = Seq.empty,
-                      val sjsLibs: Seq[ModuleID] = Seq.empty) {
+    val deps: Seq[SjsCrossBuild] = Seq.empty,
+    val sharedSettings: Seq[Def.Setting[_]] = Seq.empty,
+    val jvmLibs: Seq[ModuleID] = Seq.empty,
+    val sjsLibs: Seq[ModuleID] = Seq.empty) {
 
     val sharedSourceSettings = Seq(
       unmanagedSourceDirectories in Compile += baseDirectory(_ / ".." / name / "src" / "main" / "scala").value,
@@ -76,6 +76,7 @@ object OtestBuild extends Build {
     //As such the jvm libraries are used
     lazy val shared: Project = sharedProject(name)
       .settings(sharedSettings: _*)
+      .dependsOn(deps.map(x => x.shared: sbt.ClasspathDep[sbt.ProjectReference]): _*)
 
     lazy val sjs: Project = sjsProject(name + "-sjs")
       .settings(sharedSettings ++ sharedSourceSettings: _*)
@@ -90,23 +91,33 @@ object OtestBuild extends Build {
 
   lazy val otestCross = new SjsCrossBuild("otest",
     sharedSettings = macroSettings)
-  lazy val otest = otestCross.shared
-  lazy val otestJvm = otestCross.jvm
-  lazy val otestSjs = otestCross.sjs
+  lazy val otest      = otestCross.shared
+  lazy val otestJvm   = otestCross.jvm
+  lazy val otestSjs   = otestCross.sjs
 
-  lazy val orunnerCross = new SjsCrossBuild("orunner")
-  lazy val orunner = orunnerCross.shared
+  lazy val orunnerCross = new SjsCrossBuild("orunner",
+    deps = Seq(otestCross))
+  lazy val orunner      = orunnerCross.shared
     .settings(libraryDependencies += "org.scala-sbt" % "test-interface" % "1.0")
-  lazy val orunnerJvm = orunnerCross.jvm
+  lazy val orunnerJvm   = orunnerCross.jvm
     .settings(libraryDependencies += "org.scala-sbt" % "test-interface" % "1.0")
-  lazy val orunnerSjs = orunnerCross.sjs
+  lazy val orunnerSjs   = orunnerCross.sjs
+
+
+  val otestJvmFramework = new TestFramework("cgta.orunner.OtestSbtFramework")
 
   lazy val osampletestsCross = new SjsCrossBuild("osampletests")
-  lazy val osampletests = osampletestsCross.shared
-    .settings(libraryDependencies += "biz.cgta" %% "otest" % Versions.otest)
-  lazy val osampletestsJvm = osampletestsCross.jvm
-    .settings(libraryDependencies += "biz.cgta" %% "otest" % Versions.otest)
-  lazy val osampletestsSjs = osampletestsCross.sjs
+  lazy val osampletests      = osampletestsCross.shared
+    .settings(
+      libraryDependencies += "biz.cgta" %% "otest-jvm" % Versions.otest,
+      libraryDependencies += "biz.cgta" %% "orunner-jvm" % Versions.otest,
+      testFrameworks += otestJvmFramework)
+  lazy val osampletestsJvm   = osampletestsCross.jvm
+    .settings(
+      libraryDependencies += "biz.cgta" %% "otest-jvm" % Versions.otest,
+      libraryDependencies += "biz.cgta" %% "orunner-jvm" % Versions.otest,
+      testFrameworks += otestJvmFramework)
+  lazy val osampletestsSjs   = osampletestsCross.sjs
 
 
   lazy val root = Project("root", file("."))
@@ -114,10 +125,17 @@ object OtestBuild extends Build {
       otestJvm, otestSjs,
       orunnerJvm, orunnerSjs
     )
+    .settings(basicSettings: _*)
 
   lazy val jvmOnly = Project("jvm-only", file("jvm-only"))
-    .aggregate(otestJvm, otestSjs)
+    .aggregate(otestJvm, orunnerJvm)
     .settings(basicSettings: _*)
     .settings(publish := {})
+    .settings(SbtIdeaPlugin.ideaIgnoreModule := true)
+
+  lazy val testsOnly = Project("tests-only", file("tests-only"))
+    .aggregate(osampletestsJvm)
+    .settings(basicSettings: _*)
+    .settings(SbtIdeaPlugin.ideaIgnoreModule := true)
 
 }

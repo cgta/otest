@@ -12,6 +12,7 @@ import cgta.otest.FunSuite
 //////////////////////////////////////////////////////////////
 
 object TestAssertions extends FunSuite {
+  println("Running a test!")
   test("assertTrue passed on true input") {
     assertTrue(true)
   }

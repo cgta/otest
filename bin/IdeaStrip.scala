@@ -26,8 +26,10 @@ object IdeaStrip {
   val debug = false
 
   val projects = List(
+    "otest",
     "otest-jvm",
     "otest-sjs",
+    "orunner",
     "orunner-jvm",
     "orunner-sjs"
   ).map(Project.apply _)

@@ -13,16 +13,26 @@ import sbt.testing.SubclassFingerprint
 
 class OtestSbtFramework extends sbt.testing.Framework {
 
+  println("CALLED THE FRAMEWORK")
+
   def name(): String = "otest"
 
   def fingerprints(): Array[sbt.testing.Fingerprint] = Array(
     new SubclassFingerprint {
-      def superclassName = "otest.FunSuite"
+      def superclassName = "cgta.otest.FunSuite"
 
       def isModule = true
 
+      def requireNoArgConstructor = false
+    },
+    new SubclassFingerprint {
+      def superclassName = "cgta.otest.FunSuite"
+
+      def isModule = false
+
       def requireNoArgConstructor = true
     }
+
     //    ,
     //    new SubclassFingerprint {
     //      def superclassName = "otest.FunSuite"

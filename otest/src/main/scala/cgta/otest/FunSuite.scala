@@ -15,11 +15,17 @@ import scala.collection.mutable.ArrayBuffer
 case class TestWrapper(name: String, body: () => Unit, ignored: Boolean = false, bad: Boolean = false)
 
 trait FunSuite extends AssertionsMixin {
-  private val registered = new ArrayBuffer[TestWrapper]()
+  object SuiteImpl {
+    private val registered = new ArrayBuffer[TestWrapper]()
 
-  private def registerTest(t: TestWrapper) = {
-    registered += t
+    def tests : List[TestWrapper] = registered.toList
+
+    private[FunSuite] def registerTest(t: TestWrapper) = {
+      registered += t
+    }
   }
+
+
 
   //  /** Runs only once, before any of the test in suite have run
   //    */
@@ -40,20 +46,20 @@ trait FunSuite extends AssertionsMixin {
   //  def cleanup(body: => Unit)
 
   def test(name: String)(body: => Unit) {
-    registerTest(TestWrapper(name, () => body))
+    SuiteImpl.registerTest(TestWrapper(name, () => body))
   }
 
   /** This test is expected to fail, it's a failure if this test
     * doesn't fail
     */
   def bad(name: String)(body: => Unit) {
-    registerTest(TestWrapper(name, () => body))
+    SuiteImpl.registerTest(TestWrapper(name, () => body))
   }
 
   /** Change test to ignoretest to prevent it from running
     */
   def ignoretest(name: String)(body: => Unit) {
-    registerTest(TestWrapper(name, () => body, ignored = true))
+    SuiteImpl.registerTest(TestWrapper(name, () => body, ignored = true))
   }
 
   /** Change test to ignore to prevent it from running
@@ -65,7 +71,7 @@ trait FunSuite extends AssertionsMixin {
   /** Change test to ignorebad to prevent it from running
     */
   def ignorebad(name: String)(body: => Unit) {
-    registerTest(TestWrapper(name, () => body, ignored = true, bad = true))
+    SuiteImpl.registerTest(TestWrapper(name, () => body, ignored = true, bad = true))
   }
 
 }
