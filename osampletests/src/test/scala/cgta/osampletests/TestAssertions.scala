@@ -15,33 +15,21 @@ class SampleException extends Exception
 
 object TestAssertions extends FunSuite {
   println("Running a test!")
-  ignore("This test is ignored on purpose") {
-    Assert.fail("should not be run")
-  }
-  test("assert passes on true input") {
-    Assert.isTrue(true)
-  }
-  bad("assert fails on false input") {
-    Assert.isTrue(false)
-  }
-  test("assertEquals 1 == 1") {
-    Assert.isEquals(1, 1)
-  }
-  bad("assertEquals fails on 1 == 2") {
-    Assert.isEquals(1, 2)
-  }
-  bad("assertNotEquals fails on 1 == 1") {
-    Assert.isNotEquals(1, 1)
-  }
-  test("assertNotEquals 1 != 2") {
-    Assert.isNotEquals(1, 2)
-  }
-  test("assertAnyEquals 1 == 2L") {
-    Assert.isAnyEquals(1, 1L)
-  }
-  bad("assertAnyEquals fails on 1 == 2L") {
-    Assert.isAnyEquals(1, 2L)
-  }
+  ignore("This test is ignored on purpose") {Assert.fail("should not be run")}
+
+  test("assert passes on true input") {Assert.isTrue(true)}
+  bad("assert fails on false input") {Assert.isTrue(false)}
+
+  test("assertEquals 1 == 1") {Assert.isEquals(1, 1)}
+  bad("assertEquals fails on 1 == 2") {Assert.isEquals(1, 2)}
+  bad("assertNotEquals fails on 1 == 1") {Assert.isNotEquals(1, 1)}
+  test("assertNotEquals 1 != 2") {Assert.isNotEquals(1, 2)}
+
+  test("assertAnyEquals 1 == 2L") {Assert.isAnyEquals(1, 1L)}
+  bad("assertAnyEquals fails on 1 == 2L") {Assert.isAnyEquals(1, 2L)}
+  test("assertNotAnyEquals 1 != 2L") {Assert.isNotAnyEquals(1, 2L)}
+  bad("assertNotAnyEquals fails on 2 != 2L") {Assert.isNotAnyEquals(2, 2L)}
+
   test("assertIdentityEquals") {
     val x = "Hello"
     Assert.isIdentityEquals(x, x)
@@ -60,6 +48,18 @@ object TestAssertions extends FunSuite {
     val x = "Hello"
     Assert.isNotIdentityEquals(x, x)
   }
+
+  test("ok 1 < 2") {Assert.isLt(1, 2)}
+  test("ok 1 <= 2") {Assert.isLte(1, 2)}
+  test("ok 2 <= 2") {Assert.isLte(1, 1)}
+  test("ok 2 > 1") {Assert.isGt(2, 1)}
+  test("ok 2 >= 1") {Assert.isGte(2, 1)}
+  test("ok 2 >= 2") {Assert.isGte(2, 2)}
+
+  bad("bad 2 < 1") {Assert.isLt(2, 1)}
+  bad("bad 2 <= 1") {Assert.isLte(2, 1)}
+  bad("bad 1 > 2") {Assert.isGt(1, 2)}
+  bad("bad 1 >= 2") {Assert.isGte(1, 2)}
 
   test("intercept exception") {
     Assert.intercepts[SampleException] {throw new SampleException}

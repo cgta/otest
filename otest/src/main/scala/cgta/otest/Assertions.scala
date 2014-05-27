@@ -78,7 +78,7 @@ trait AssertionsMixin {
 
   //Asserts a > b
   def isGt[A](a: A, b: A, clues: Any*)(implicit ordering: Ordering[A])  {
-    if (ordering.lteq(a, b)) {
+    if (ordering.gt(a, b)) {
     } else {
       throw AssertionFailure.basic(a, b, "to be >", clues: _*)
     }
@@ -86,7 +86,7 @@ trait AssertionsMixin {
 
   //Asserts a >= b
   def isGte[A](a: A, b: A, clues: Any*)(implicit ordering: Ordering[A])  {
-    if (ordering.lteq(a, b)) {
+    if (ordering.gteq(a, b)) {
     } else {
       throw AssertionFailure.basic(a, b, "to be >=", clues: _*)
     }
