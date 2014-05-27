@@ -1,11 +1,9 @@
 package cgta.orunner
 
 
-import java.util.concurrent.atomic.AtomicInteger
-import java.util.concurrent.locks.ReentrantLock
-import cgta.otest.{AssertionFailure, FunSuite}
+import cgta.otest.{CatchableThrowable, AssertionFailure, FunSuite}
 import sbt.testing.{Task, SubclassFingerprint, Logger, EventHandler, TaskDef}
-import scala.util.control.NonFatal
+import scala.collection.mutable.ArrayBuffer
 
 
 //////////////////////////////////////////////////////////////
@@ -15,6 +13,35 @@ import scala.util.control.NonFatal
 // for licensing inquiries
 // Created by bjackman @ 5/23/14 4:01 PM
 //////////////////////////////////////////////////////////////
+
+
+sealed trait TestResult {
+  def name: String
+  def isPassed: Boolean = false
+  def isFailed: Boolean = false
+  def isIgnored: Boolean = false
+}
+object TestResults {
+  case class Passed(name: String) extends TestResult {
+    override val isPassed = true
+  }
+  case class Ignored(name: String) extends TestResult {
+    override val isIgnored = true
+  }
+  sealed trait Failed extends TestResult
+  case class FailedBad(name: String) extends Failed {
+    override val isFailed = true
+  }
+  case class FailedAssertion(name: String, e: AssertionFailure) extends Failed {
+    override val isFailed = true
+  }
+  case class FailedUnexpectedException(name: String, e: Throwable) extends Failed {
+    override val isFailed = true
+  }
+  case class FailedFatalException(name: String, e: Throwable) extends Failed {
+    override val isFailed = true
+  }
+}
 
 
 class OtestSbtJvmRunner(
@@ -53,13 +80,11 @@ class OtestSbtJvmRunner(
 
     def execute(eventHandler: EventHandler, loggers: Array[Logger]): Array[Task] = {
       val name = taskDef.fullyQualifiedName()
-      println(s"Lets pretend I am running a test [$taskDef] [$s] [$loggers] [$name]")
-
       taskDef.fingerprint() match {
         case fingerprint: SubclassFingerprint =>
           if (fingerprint.isModule) {
             val cls = Class.forName(name + "$")
-            runSuite(cls.getField("MODULE$").get(cls).asInstanceOf[FunSuite])
+            runSuite(cls.getField("MODULE$").get(cls).asInstanceOf[FunSuite], loggers)
           } else {
             sys.error("Using FunSuite only works on objects not on classes")
           }
@@ -69,40 +94,60 @@ class OtestSbtJvmRunner(
       Array()
     }
 
-    def runSuite(s: FunSuite) {
-      for (test <- s.SuiteImpl.tests) {
-        def testPassed() {
-
-        }
-
-        def assertionFailed(e: AssertionFailure) {
-        }
-
-        def unexpectedException(e: Throwable) {
-
-        }
-
-        def testIgnored() {
-
-        }
-
-        if (test.ignored) {
-          testIgnored()
-        } else {
-          try {
-            test.body
-            testPassed()
-          } catch {
-            case e: AssertionFailure => assertionFailed(e)
-            case e if NonFatal(e) => unexpectedException(e)
+    def runSuite(s: FunSuite, loggers: Array[Logger]) {
+      val results = ArrayBuffer[TestResult]()
+      try {
+        for (test <- s.SuiteImpl.tests) {
+          if (test.ignored) {
+            results += TestResults.Ignored(test.name)
+          } else {
+            try {
+              test.body()
+              if (test.bad) {
+                results += TestResults.FailedBad(test.name)
+              } else {
+                results += TestResults.Passed(test.name)
+              }
+            } catch {
+              case e: AssertionFailure =>
+                if (test.bad) {
+                  results += TestResults.Passed(test.name)
+                } else {
+                  results += TestResults.FailedAssertion(test.name, e)
+                }
+              case e if CatchableThrowable(e) =>
+                results += TestResults.FailedUnexpectedException(test.name, e)
+              case e: Throwable =>
+                results += TestResults.FailedFatalException(test.name, e)
+                throw e
+            }
           }
         }
-        LOG THE STUFF
+      } finally {
+        loggers.foreach { logger =>
+          def format(color: String, msg: String): String = {
+            var m = ""
+            if (logger.ansiCodesSupported()) {
+              m += color
+            }
+            m += msg
+            if (logger.ansiCodesSupported()) {
+              m += Console.RESET
+            }
+            m
+          }
+          logger.info(format(color = Console.GREEN, msg = s.SuiteImpl.simpleName + ":"))
+          results.foreach {
+            case r: TestResults.Passed => logger.info(format(color = Console.GREEN, msg = s"- ${r.name}"))
+            case r: TestResults.Ignored =>
+              logger.info(format(color = Console.YELLOW, msg = s"- ${r.name} !!! IGNORED !!!"))
+            case r: TestResults.Failed =>
+              logger.info(format(color = Console.RED, msg = s"- ${r.name} *** FAILED ***"))
+          }
+        }
       }
     }
-
   }
-
 }
 
 

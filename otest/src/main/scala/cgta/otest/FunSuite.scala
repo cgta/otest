@@ -16,15 +16,17 @@ case class TestWrapper(name: String, body: () => Unit, ignored: Boolean = false,
 
 trait FunSuite extends AssertionsMixin {
   object SuiteImpl {
+
+    def simpleName = FunSuite.this.getClass.toString.split("\\.").last
+
     private val registered = new ArrayBuffer[TestWrapper]()
 
-    def tests : List[TestWrapper] = registered.toList
+    def tests: List[TestWrapper] = registered.toList
 
     private[FunSuite] def registerTest(t: TestWrapper) = {
       registered += t
     }
   }
-
 
 
   //  /** Runs only once, before any of the test in suite have run
@@ -53,7 +55,7 @@ trait FunSuite extends AssertionsMixin {
     * doesn't fail
     */
   def bad(name: String)(body: => Unit) {
-    SuiteImpl.registerTest(TestWrapper(name, () => body))
+    SuiteImpl.registerTest(TestWrapper(name, () => body, bad = true))
   }
 
   /** Change test to ignoretest to prevent it from running

@@ -14,23 +14,51 @@ import scala.language.experimental.macros
 object Assertions extends AssertionsMixin
 
 trait AssertionsMixin {
-  def assertTrue(p: Boolean, clue: String = null) {
-    if (!p) throw AssertionFailure.basic("true", "" + p, clue)
+  def assertTrue(actual: Boolean, clue: String = null) {
+    if (!actual) throw AssertionFailure.basic("true", actual, "but got", clue)
   }
 
-  def assertFalse(p: Boolean, clue: String) {
-    if (p) throw AssertionFailure.basic("false", "" + p, clue)
+  def assertFalse(actual: Boolean, clue: String = null) {
+    if (actual) throw AssertionFailure.basic("false", actual, "but got", clue)
   }
 
   def assertEquals[A, B](expected: A, actual: B, clue: Any = null)(implicit ev: A =:= B) {
+    if (expected == actual) {
+    } else {
+      throw AssertionFailure.basic(expected, actual, "to be equal to", clue)
+    }
+  }
+
+  def assertNotEquals[A, B](expected: A, actual: B, clue: Any = null)(implicit ev: A =:= B) {
     if (expected != actual) {
-      throw AssertionFailure.basic("" + expected, "" + actual, if (clue == null) null else "" + clue)
+    } else {
+      throw AssertionFailure.basic(expected, actual, "not to be equal to", clue)
     }
   }
 
   def assertAnyEquals(expected: Any, actual: Any, clue: Any = null) {
+    if (expected == actual) {
+    } else {
+      throw AssertionFailure.basic(expected, actual, "to be equal to", clue)
+    }
+  }
+  def assertNotAnyEquals(expected: Any, actual: Any, clue: Any = null) {
     if (expected != actual) {
-      throw AssertionFailure.basic("" + expected, "" + actual, if (clue == null) null else "" + clue)
+    } else {
+      throw AssertionFailure.basic(expected, actual, "not be equal to", clue)
+    }
+  }
+
+  def assertIdentityEquals(expected: AnyRef, actual: AnyRef, clue: Any = null) {
+    if (expected eq actual) {
+    } else {
+      throw AssertionFailure.basic(expected, actual, "to be identity eq to", clue)
+    }
+  }
+  def assertNotIdentityEquals(expected: AnyRef, actual: AnyRef, clue: Any = null) {
+    if (expected eq actual) {
+      throw AssertionFailure.basic(expected, actual, "not to be identity eq to", clue)
+    } else {
     }
   }
 
@@ -39,30 +67,30 @@ trait AssertionsMixin {
   }
 
   def intercept[T](body: Unit): Unit = macro AssertionMacros.intercept[T]
-
-  //  def intercept[T <: Throwable](clue : Any)(body: => Any) = macro AssertionMacros.intercept[T]
+  def interceptWithClue[T](clue: Any)(body: Unit) = macro AssertionMacros.interceptWithClue[T]
 }
 
 
 object AssertionFailure {
-  def basic(expected: String, actual: String, clue: String): AssertionFailure = {
-    new AssertionFailure(s"Expected [$expected] but got [$actual]${if (clue != null) s" clue: $clue" else ""}", null)
+  def basic(expected: Any, actual: Any, join: String, clue: Any): AssertionFailure = {
+    new AssertionFailure(s"Expected [$expected] ${join} [$actual]${if (clue != null) s" clue: $clue" else ""}", null)
   }
 
   def fail(msg: String): AssertionFailure = {
     new AssertionFailure(s"fail() called${if (msg != null) s": $msg" else ""}", null)
   }
 
-  def intercept(expectedTypeName: String, unexpected: Option[Throwable]): AssertionFailure = {
+  def intercept(expectedTypeName: String, unexpected: Option[Throwable], clue: String = null): AssertionFailure = {
+    val clueStr = if (clue != null) s" clue: $clue" else ""
     unexpected match {
       case None =>
-        new AssertionFailure(s"Expected to intercept [$expectedTypeName] but nothing was thrown.", null)
+        new AssertionFailure(s"Expected to intercept [$expectedTypeName] but nothing was thrown. $clueStr", null)
       case Some(unexpected) =>
         val unexpectedTypeName = unexpected.getClass.toString
-        new AssertionFailure(s"Expected to intercept [$expectedTypeName] but caught [$unexpectedTypeName]", unexpected)
+        new AssertionFailure(
+          s"Expected to intercept [$expectedTypeName] but caught [$unexpectedTypeName]. $clueStr", unexpected)
     }
   }
 }
 
-class AssertionFailure(reason: String, cause: Throwable) extends RuntimeException(reason, cause) {
-}
+class AssertionFailure(reason: String, cause: Throwable) extends RuntimeException(reason, cause)
