@@ -13,7 +13,7 @@ import scala.reflect.macros.Context
 import scala.language.experimental.macros
 
 object AssertionMacros {
-  def intercept[T: c.WeakTypeTag](c: Context)(body: c.Expr[Unit]): c.Expr[Unit] = {
+  def intercepts[T: c.WeakTypeTag](c: Context)(body: c.Expr[Unit]): c.Expr[Unit] = {
     import c.universe._
     val t = implicitly[c.WeakTypeTag[T]]
     val tname = t.toString()
@@ -36,7 +36,7 @@ object AssertionMacros {
     c.Expr[Unit](res)
   }
 
-  def interceptWithClues[T: c.WeakTypeTag](c: Context)(clues: c.Expr[Any]*)(body: c.Expr[Unit]): c.Expr[Unit] = {
+  def interceptsWithClues[T: c.WeakTypeTag](c: Context)(clues: c.Expr[Any]*)(body: c.Expr[Unit]): c.Expr[Unit] = {
     import c.universe._
     val t = implicitly[c.WeakTypeTag[T]]
     val tname = t.toString()
