@@ -16,38 +16,66 @@ class SampleException extends Exception
 object TestAssertions extends FunSuite {
   println("Running a test!")
   ignore("This test is ignored on purpose") {
-    fail("should not be run")
+    Assert.fail("should not be run")
   }
-  test("assertTrue passed on true input") {
-    assertTrue(true)
+  test("assert passes on true input") {
+    Assert.isTrue(true)
   }
-  bad("assertTrue fails on false input") {
-    assertTrue(false)
+  bad("assert fails on false input") {
+    Assert.isTrue(false)
   }
-  test("assertFalse passed on false input") {
-    assertFalse(false)
-  }
-  bad("assertFalse fails on true input") {
-    assertFalse(true)
-  }
-  test("assertEquals 1 == 2") {
-    assertEquals(1,1)
+  test("assertEquals 1 == 1") {
+    Assert.isEquals(1, 1)
   }
   bad("assertEquals fails on 1 == 2") {
-    assertEquals(1,2)
+    Assert.isEquals(1, 2)
+  }
+  bad("assertNotEquals fails on 1 == 1") {
+    Assert.isNotEquals(1, 1)
+  }
+  test("assertNotEquals 1 != 2") {
+    Assert.isNotEquals(1, 2)
   }
   test("assertAnyEquals 1 == 2L") {
-    assertAnyEquals(1,1L)
+    Assert.isAnyEquals(1, 1L)
   }
   bad("assertAnyEquals fails on 1 == 2L") {
-    assertAnyEquals(1,2L)
+    Assert.isAnyEquals(1, 2L)
   }
+  test("assertIdentityEquals") {
+    val x = "Hello"
+    Assert.isIdentityEquals(x, x)
+  }
+  bad("assertIdentityEquals fails") {
+    val x = "Hello"
+    val y = new String("Hello")
+    Assert.isIdentityEquals(x, y)
+  }
+  test("assertNotIdentityEquals") {
+    val x = "Hello"
+    val y = new String("Hello")
+    Assert.isNotIdentityEquals(x, y)
+  }
+  bad("assertNotIdentityEquals fails") {
+    val x = "Hello"
+    Assert.isNotIdentityEquals(x, x)
+  }
+
   test("intercept exception") {
-    intercept[SampleException] {throw new SampleException}
-    intercept[Exception] {throw new SampleException}
-    intercept[Exception] {throw new SampleException}
+    Assert.intercepts[SampleException] {throw new SampleException}
+    Assert.intercepts[Exception] {throw new SampleException}
+    Assert.intercepts[Throwable] {throw new SampleException}
   }
-  bad("intercept exception") {
-    intercept[RuntimeException] {throw new SampleException}
+  bad("intercept exception wrong kind of exception") {
+    Assert.intercepts[RuntimeException] {throw new SampleException}
   }
+  test("intercept exception with clues") {
+    Assert.interceptsWithClues[SampleException](1) {throw new SampleException}
+    Assert.interceptsWithClues[Exception](1, 2) {throw new SampleException}
+    Assert.interceptsWithClues[Throwable](1, 2, "foo") {throw new SampleException}
+  }
+  bad("intercept exception with clues wrong kind of exception") {
+    Assert.interceptsWithClues[RuntimeException](1, 2, "foo") {throw new SampleException}
+  }
+
 }

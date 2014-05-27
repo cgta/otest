@@ -14,51 +14,81 @@ import scala.language.experimental.macros
 object Assertions extends AssertionsMixin
 
 trait AssertionsMixin {
-  def assertTrue(actual: Boolean, clue: String = null) {
-    if (!actual) throw AssertionFailure.basic("true", actual, "but got", clue)
+  def isTrue(actual: Boolean, clues: Any*) {
+    if (!actual) throw AssertionFailure.basic("true", actual, "but got", clues: _*)
   }
 
-  def assertFalse(actual: Boolean, clue: String = null) {
-    if (actual) throw AssertionFailure.basic("false", actual, "but got", clue)
-  }
-
-  def assertEquals[A, B](expected: A, actual: B, clue: Any = null)(implicit ev: A =:= B) {
+  def isEquals[A, B](expected: A, actual: B, clues: Any*)(implicit ev: A =:= B) {
     if (expected == actual) {
     } else {
-      throw AssertionFailure.basic(expected, actual, "to be equal to", clue)
+      throw AssertionFailure.basic(expected, actual, "to be equal to", clues: _*)
     }
   }
 
-  def assertNotEquals[A, B](expected: A, actual: B, clue: Any = null)(implicit ev: A =:= B) {
+  def isNotEquals[A, B](expected: A, actual: B, clues: Any*)(implicit ev: A =:= B) {
     if (expected != actual) {
     } else {
-      throw AssertionFailure.basic(expected, actual, "not to be equal to", clue)
+      throw AssertionFailure.basic(expected, actual, "not to be equal to", clues: _*)
     }
   }
 
-  def assertAnyEquals(expected: Any, actual: Any, clue: Any = null) {
+  def isAnyEquals(expected: Any, actual: Any, clues: Any*) {
     if (expected == actual) {
     } else {
-      throw AssertionFailure.basic(expected, actual, "to be equal to", clue)
-    }
-  }
-  def assertNotAnyEquals(expected: Any, actual: Any, clue: Any = null) {
-    if (expected != actual) {
-    } else {
-      throw AssertionFailure.basic(expected, actual, "not be equal to", clue)
+      throw AssertionFailure.basic(expected, actual, "to be equal to", clues: _*)
     }
   }
 
-  def assertIdentityEquals(expected: AnyRef, actual: AnyRef, clue: Any = null) {
-    if (expected eq actual) {
+  def isNotAnyEquals(expected: Any, actual: Any, clues: Any*) {
+    if (expected != actual) {
     } else {
-      throw AssertionFailure.basic(expected, actual, "to be identity eq to", clue)
+      throw AssertionFailure.basic(expected, actual, "not be equal to", clues: _*)
     }
   }
-  def assertNotIdentityEquals(expected: AnyRef, actual: AnyRef, clue: Any = null) {
+
+  def isIdentityEquals(expected: AnyRef, actual: AnyRef, clues: Any*) {
     if (expected eq actual) {
-      throw AssertionFailure.basic(expected, actual, "not to be identity eq to", clue)
     } else {
+      throw AssertionFailure.basic(expected, actual, "to be identity eq to", clues: _*)
+    }
+  }
+
+  def isNotIdentityEquals(expected: AnyRef, actual: AnyRef, clues: Any*) {
+    if (expected eq actual) {
+      throw AssertionFailure.basic(expected, actual, "not to be identity eq to", clues: _*)
+    } else {
+    }
+  }
+
+  //Asserts a < b
+  def isLt[A](a: A, b: A, clues: Any*)(implicit ordering: Ordering[A]) {
+    if (ordering.lt(a, b)) {
+    } else {
+      throw AssertionFailure.basic(a, b, "to be <", clues: _*)
+    }
+  }
+
+  //Asserts a <= b
+  def isLte[A](a: A, b: A, clues: Any*)(implicit ordering: Ordering[A])  {
+    if (ordering.lteq(a, b)) {
+    } else {
+      throw AssertionFailure.basic(a, b, "to be <=", clues: _*)
+    }
+  }
+
+  //Asserts a > b
+  def isGt[A](a: A, b: A, clues: Any*)(implicit ordering: Ordering[A])  {
+    if (ordering.lteq(a, b)) {
+    } else {
+      throw AssertionFailure.basic(a, b, "to be >", clues: _*)
+    }
+  }
+
+  //Asserts a >= b
+  def isGte[A](a: A, b: A, clues: Any*)(implicit ordering: Ordering[A])  {
+    if (ordering.lteq(a, b)) {
+    } else {
+      throw AssertionFailure.basic(a, b, "to be >=", clues: _*)
     }
   }
 
@@ -66,31 +96,9 @@ trait AssertionsMixin {
     throw AssertionFailure.fail(msg)
   }
 
-  def intercept[T](body: Unit): Unit = macro AssertionMacros.intercept[T]
-  def interceptWithClue[T](clue: Any)(body: Unit) = macro AssertionMacros.interceptWithClue[T]
+  def intercepts[T](body: Unit): Unit = macro AssertionMacros.intercept[T]
+
+  def interceptsWithClues[T](clues: Any*)(body: Unit) = macro AssertionMacros.interceptWithClues[T]
 }
 
 
-object AssertionFailure {
-  def basic(expected: Any, actual: Any, join: String, clue: Any): AssertionFailure = {
-    new AssertionFailure(s"Expected [$expected] ${join} [$actual]${if (clue != null) s" clue: $clue" else ""}", null)
-  }
-
-  def fail(msg: String): AssertionFailure = {
-    new AssertionFailure(s"fail() called${if (msg != null) s": $msg" else ""}", null)
-  }
-
-  def intercept(expectedTypeName: String, unexpected: Option[Throwable], clue: String = null): AssertionFailure = {
-    val clueStr = if (clue != null) s" clue: $clue" else ""
-    unexpected match {
-      case None =>
-        new AssertionFailure(s"Expected to intercept [$expectedTypeName] but nothing was thrown. $clueStr", null)
-      case Some(unexpected) =>
-        val unexpectedTypeName = unexpected.getClass.toString
-        new AssertionFailure(
-          s"Expected to intercept [$expectedTypeName] but caught [$unexpectedTypeName]. $clueStr", unexpected)
-    }
-  }
-}
-
-class AssertionFailure(reason: String, cause: Throwable) extends RuntimeException(reason, cause)

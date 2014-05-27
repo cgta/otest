@@ -19,10 +19,13 @@ object AssertionMacros {
     val tname = t.toString()
     val res = q"""
       var _cAugHt =false
-      try{
-        $body
+      try {
+        try{
+          $body
+        } catch {
+          case e: $t=>_cAugHt =true
+        }
       } catch {
-        case e: $t=>_cAugHt =true
         case t: Throwable if cgta.otest.CatchableThrowable(t) =>
           throw cgta.otest.AssertionFailure.intercept($tname, Some(t))
       }
@@ -33,21 +36,24 @@ object AssertionMacros {
     c.Expr[Unit](res)
   }
 
-  def interceptWithClue[T: c.WeakTypeTag](c: Context)(clue: c.Expr[Any])(body: c.Expr[Unit]): c.Expr[Unit] = {
+  def interceptWithClues[T: c.WeakTypeTag](c: Context)(clues: c.Expr[Any]*)(body: c.Expr[Unit]): c.Expr[Unit] = {
     import c.universe._
     val t = implicitly[c.WeakTypeTag[T]]
     val tname = t.toString()
     val res = q"""
       var _cAugHt =false
-      try{
-        $body
+      try {
+        try {
+          $body
+        } catch {
+          case e: $t=>_cAugHt =true
+        }
       } catch {
-        case e: $t=>_cAugHt =true
         case t: Throwable if cgta.otest.CatchableThrowable(t) =>
-          throw cgta.otest.AssertionFailure.intercept($tname, Some(t), $clue)
+          throw cgta.otest.AssertionFailure.intercept($tname, Some(t), ..$clues)
       }
       if(!_cAugHt){
-        throw cgta.otest.AssertionFailure.intercept($tname, None, $clue)
+        throw cgta.otest.AssertionFailure.intercept($tname, None, ..$clues)
       }
       """
     c.Expr[Unit](res)

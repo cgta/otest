@@ -14,7 +14,7 @@ import scala.collection.mutable.ArrayBuffer
 
 case class TestWrapper(name: String, body: () => Unit, ignored: Boolean = false, bad: Boolean = false)
 
-trait FunSuite extends AssertionsMixin {
+trait FunSuite {
   object SuiteImpl {
 
     def simpleName = FunSuite.this.getClass.toString.split("\\.").last
@@ -27,6 +27,8 @@ trait FunSuite extends AssertionsMixin {
       registered += t
     }
   }
+
+  object Assert extends AssertionsMixin
 
 
   //  /** Runs only once, before any of the test in suite have run
