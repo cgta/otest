@@ -17,6 +17,7 @@ trait TestTaskImpl extends ITestTask {
 
   def execute(eventHandler: EventHandler, loggers: Array[Logger]): Array[Task] = {
     println("FOOOOO")
+    tracker.begin()
     Array()
   }
 

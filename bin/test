@@ -1,3 +1,4 @@
 #!/bin/bash -eax
 
-sbt "project otest-all" "publishLocal"; sbt "project tests-all" "test"
+$(dirname $0)/test-jvm
+$(dirname $0)/test-sjs
