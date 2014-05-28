@@ -1,10 +1,10 @@
-package cgta.orunner
-
+package cgta.otest
+package runner
 
 import cgta.otest.{CatchableThrowable, AssertionFailure, FunSuite}
-import sbt.testing.{OptionalThrowable, Status, Selector, Fingerprint, Task, SubclassFingerprint, Logger, EventHandler, TaskDef}
+import sbt.testing.{Status, Selector, Fingerprint, OptionalThrowable, TaskDef, Task, SubclassFingerprint, Logger, EventHandler}
 import scala.collection.mutable.ArrayBuffer
-import cgta.orunner.TestResults.{Ignored, Passed, FailedBad, FailedAssertion, FailedUnexpectedException, FailedFatalException}
+import cgta.otest.runner.TestResults.{Ignored, FailedBad, Passed, FailedAssertion, FailedUnexpectedException, FailedFatalException}
 
 
 //////////////////////////////////////////////////////////////

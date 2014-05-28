@@ -1,4 +1,5 @@
-package cgta.orunner
+package cgta.otest
+package runner
 
 import sbt.testing.SubclassFingerprint
 
@@ -20,7 +21,7 @@ class OtestSbtFramework extends sbt.testing.Framework {
   def name(): String = "otest"
 
   def fingerprints(): Array[sbt.testing.Fingerprint] = Array(
-    new SubclassFingerprint {
+    new SubclassFingerprint  {
       def superclassName = OtestSbtFramework.funSuiteName
       def isModule = true
       def requireNoArgConstructor = false

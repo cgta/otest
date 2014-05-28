@@ -39,11 +39,15 @@ object OtestBuild extends Build {
 
   lazy val macroSettings = Seq[Setting[_]](
     libraryDependencies ++= Libs.macrosQuasi,
-    addCompilerPlugin(Libs.macrosPlugin))
+    addCompilerPlugin(CompilerPlugins.macrosPlugin))
+
+  object CompilerPlugins {
+    val macrosPlugin = "org.scalamacros" %% "paradise" % "2.0.0" cross CrossVersion.full
+  }
 
   object Libs {
-    val macrosQuasi  = List("org.scalamacros" %% "quasiquotes" % "2.0.0")
-    val macrosPlugin = "org.scalamacros" %% "paradise" % "2.0.0" cross CrossVersion.full
+    val macrosQuasi      = Seq("org.scalamacros" %% "quasiquotes" % "2.0.0")
+    val sbtTestInterface = Seq("org.scala-sbt" % "test-interface" % "1.0")
   }
 
 
@@ -90,50 +94,40 @@ object OtestBuild extends Build {
   }
 
   lazy val otestCross = new SjsCrossBuild("otest",
-    sharedSettings = macroSettings)
+    sharedSettings = macroSettings :+ (libraryDependencies ++= Libs.sbtTestInterface))
   lazy val otest      = otestCross.shared
   lazy val otestJvm   = otestCross.jvm
   lazy val otestSjs   = otestCross.sjs
 
-  lazy val orunnerCross = new SjsCrossBuild("orunner",
-    deps = Seq(otestCross))
-  lazy val orunner      = orunnerCross.shared
-    .settings(libraryDependencies += "org.scala-sbt" % "test-interface" % "1.0")
-  lazy val orunnerJvm   = orunnerCross.jvm
-    .settings(libraryDependencies += "org.scala-sbt" % "test-interface" % "1.0")
-  lazy val orunnerSjs   = orunnerCross.sjs
-
-
-  val otestJvmFramework = new TestFramework("cgta.orunner.OtestSbtFramework")
+  val otestJvmFramework = new TestFramework("cgta.otest.runner.OtestSbtFramework")
 
   lazy val osampletestsCross = new SjsCrossBuild("osampletests")
   lazy val osampletests      = osampletestsCross.shared
     .settings(
       libraryDependencies += "biz.cgta" %% "otest-jvm" % Versions.otest,
-      libraryDependencies += "biz.cgta" %% "orunner-jvm" % Versions.otest,
       testFrameworks += otestJvmFramework)
   lazy val osampletestsJvm   = osampletestsCross.jvm
     .settings(
       libraryDependencies += "biz.cgta" %% "otest-jvm" % Versions.otest,
-      libraryDependencies += "biz.cgta" %% "orunner-jvm" % Versions.otest,
       testFrameworks += otestJvmFramework)
   lazy val osampletestsSjs   = osampletestsCross.sjs
 
 
   lazy val root = Project("root", file("."))
     .aggregate(
-      otestJvm, otestSjs,
-      orunnerJvm, orunnerSjs
-    )
+      otestJvm, otestSjs)
     .settings(basicSettings: _*)
 
-  lazy val jvmOnly = Project("jvm-only", file("jvm-only"))
-    .aggregate(otestJvm, orunnerJvm)
+  lazy val otestAll = Project("otest-all", file("otest-all"))
+    //    .aggregate(osampletestsJvm, osampletestsSjs)
+    .aggregate(otestJvm)
     .settings(basicSettings: _*)
     .settings(publish := {})
     .settings(SbtIdeaPlugin.ideaIgnoreModule := true)
 
-  lazy val testsOnly = Project("tests-only", file("tests-only"))
+
+  lazy val testsAll = Project("tests-all", file("tests-all"))
+    //    .aggregate(osampletestsJvm, osampletestsSjs)
     .aggregate(osampletestsJvm)
     .settings(basicSettings: _*)
     .settings(SbtIdeaPlugin.ideaIgnoreModule := true)

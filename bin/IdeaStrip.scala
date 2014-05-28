@@ -29,9 +29,9 @@ object IdeaStrip {
     "otest",
     "otest-jvm",
     "otest-sjs",
-    "orunner",
-    "orunner-jvm",
-    "orunner-sjs"
+    "osampletest",
+    "osampletest-jvm",
+    "osampletest-sjs"
   ).map(Project.apply _)
 
   val MaxLen = projects.flatMap(_.allPaths.map(_.name.length())).max
