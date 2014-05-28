@@ -10,4 +10,4 @@ package cgta.otest
 //////////////////////////////////////////////////////////////
 
 
-class FunSuitePlatformImpl
+trait FunSuitePlatformImpl

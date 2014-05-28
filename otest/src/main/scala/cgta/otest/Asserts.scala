@@ -11,9 +11,9 @@ package cgta.otest
 
 import scala.language.experimental.macros
 
-object Assertions extends AssertionsMixin
+object Asserts extends AssertsMixin
 
-trait AssertionsMixin {
+trait AssertsMixin {
   def isTrue(actual: Boolean, clues: Any*) {
     if (!actual) throw AssertionFailure.basic("true", actual, "but got", clues: _*)
   }

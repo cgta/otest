@@ -1,7 +1,7 @@
 package cgta.otest
 package runner
 
-import sbt.testing.SubclassFingerprint
+import sbt.testing.{Runner, SubclassFingerprint}
 
 
 //////////////////////////////////////////////////////////////
@@ -35,7 +35,7 @@ class OtestSbtFramework extends sbt.testing.Framework {
 
   def runner(args: Array[String],
     remoteArgs: Array[String],
-    testClassLoader: ClassLoader) = {
-    new OtestSbtJvmRunner(args, remoteArgs, testClassLoader)
+    testClassLoader: ClassLoader) : Runner = {
+    new TestRunner(args, remoteArgs, testClassLoader)
   }
 }

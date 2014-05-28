@@ -28,7 +28,7 @@ trait FunSuite extends FunSuitePlatformImpl {
     }
   }
 
-  object Assert extends AssertionsMixin
+  object Assert extends AssertsMixin
 
 
   //  /** Runs only once, before any of the test in suite have run
