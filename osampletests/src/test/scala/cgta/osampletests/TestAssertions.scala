@@ -49,7 +49,7 @@ object TestAssertions extends FunSuite {
     Assert.isNotIdentityEquals(x, x)
   }
 
-  test("ok 1 < 2") {Assert.isLt(3, 2)}
+  test("ok 1 < 2") {Assert.isLt(1, 2)}
   test("ok 1 <= 2") {Assert.isLte(1, 2)}
   test("ok 2 <= 2") {Assert.isLte(1, 1)}
   test("ok 2 > 1") {Assert.isGt(2, 1)}

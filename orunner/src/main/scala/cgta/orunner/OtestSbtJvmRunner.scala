@@ -2,9 +2,9 @@ package cgta.orunner
 
 
 import cgta.otest.{CatchableThrowable, AssertionFailure, FunSuite}
-import sbt.testing.{Task, SubclassFingerprint, Logger, EventHandler, TaskDef}
+import sbt.testing.{OptionalThrowable, Status, Selector, Fingerprint, Task, SubclassFingerprint, Logger, EventHandler, TaskDef}
 import scala.collection.mutable.ArrayBuffer
-import cgta.orunner.TestResults.{FailedBad, FailedFatalException, FailedUnexpectedException, FailedAssertion}
+import cgta.orunner.TestResults.{FailedBad, FailedAssertion, FailedUnexpectedException, FailedFatalException}
 
 
 //////////////////////////////////////////////////////////////
@@ -16,38 +16,63 @@ import cgta.orunner.TestResults.{FailedBad, FailedFatalException, FailedUnexpect
 //////////////////////////////////////////////////////////////
 
 
-sealed trait TestResult {
+sealed trait TestResult extends sbt.testing.Event {
+  val taskDef: TaskDef
+  override def selector(): Selector = taskDef.selectors().head
+  override def fingerprint(): Fingerprint = taskDef.fingerprint()
+  override def fullyQualifiedName(): String = taskDef.fullyQualifiedName()
   def name: String
   def isPassed: Boolean = false
   def isFailed: Boolean = false
   def isIgnored: Boolean = false
 }
 object TestResults {
-  case class Passed(name: String) extends TestResult {
+  case class Passed(name: String, duration: Long)(implicit val taskDef: TaskDef) extends TestResult {
     override val isPassed = true
+    override def throwable(): OptionalThrowable = new OptionalThrowable()
+    override def status(): Status = Status.Success
   }
-  case class Ignored(name: String) extends TestResult {
+  case class Ignored(name: String)(implicit val taskDef: TaskDef) extends TestResult {
+    val duration = 0L
     override val isIgnored = true
+    override def throwable(): OptionalThrowable = new OptionalThrowable()
+    override def status(): Status = Status.Ignored
   }
   sealed trait Failed extends TestResult
-  case class FailedBad(name: String) extends Failed {
+  case class FailedBad(name: String, duration: Long)(implicit val taskDef: TaskDef) extends Failed {
     override val isFailed = true
+    override def throwable(): OptionalThrowable = new OptionalThrowable()
+    override def status(): Status = Status.Failure
   }
-  case class FailedAssertion(name: String, e: AssertionFailure) extends Failed {
+  case class FailedAssertion(
+    name: String, e: AssertionFailure, duration: Long)(implicit val taskDef: TaskDef) extends Failed {
+
     override val isFailed = true
+    override def throwable(): OptionalThrowable = new OptionalThrowable(e)
+    override def status(): Status = Status.Failure
   }
-  case class FailedUnexpectedException(name: String, e: Throwable) extends Failed {
+  case class FailedUnexpectedException(
+    name: String, e: Throwable, duration: Long)(implicit val taskDef: TaskDef) extends Failed {
+
     override val isFailed = true
+    override def throwable(): OptionalThrowable = new OptionalThrowable(e)
+    override def status(): Status = Status.Failure
+
   }
-  case class FailedFatalException(name: String, e: Throwable) extends Failed {
+  case class FailedFatalException(
+    name: String, e: Throwable, duration: Long)(implicit val taskDef: TaskDef) extends Failed {
+
     override val isFailed = true
+    override def throwable(): OptionalThrowable = new OptionalThrowable(e)
+    override def status(): Status = Status.Error
   }
 }
 
 
 class OtestSbtJvmRunner(
   override val args: Array[String],
-  override val remoteArgs: Array[String]) extends sbt.testing.Runner {
+  override val remoteArgs: Array[String],
+  val testClassLoader: ClassLoader) extends sbt.testing.Runner {
 
   object Tracker {
     object Tests {
@@ -75,9 +100,7 @@ class OtestSbtJvmRunner(
       s"Suites: completed ${Suites.completed}, aborted ${Suites.aborted}\n" +
       s"Tests: succeeded $passed, failed $failed, aborted $aborted, ignored $ignored, pending $pending\n"
 
-    if (Tracker.Tests.failed > 0) sys.error(res)
     res
-
   }
 
   override def tasks(taskDefs: Array[TaskDef]): Array[Task] = {
@@ -91,49 +114,57 @@ class OtestSbtJvmRunner(
       Tracker.startUtcMs = System.currentTimeMillis()
       val name = taskDef.fullyQualifiedName()
       taskDef.fingerprint() match {
-        case fingerprint: SubclassFingerprint =>
+        case fingerprint: SubclassFingerprint if fingerprint.superclassName() == OtestSbtFramework.funSuiteName =>
           if (fingerprint.isModule) {
             val cls = Class.forName(name + "$")
-            runSuite(cls.getField("MODULE$").get(cls).asInstanceOf[FunSuite], loggers)
+            runSuite(eventHandler, cls.getField("MODULE$").get(cls).asInstanceOf[FunSuite], loggers)
           } else {
             sys.error("Using FunSuite only works on objects not on classes")
           }
         case _ =>
       }
+
       Array()
     }
 
-    def runSuite(s: FunSuite, loggers: Array[Logger]) {
+    def runSuite(eventHandler: EventHandler, s: FunSuite, loggers: Array[Logger]) {
       val results = ArrayBuffer[TestResult]()
+      def addResult(r: TestResult) {
+        results += r
+        eventHandler.handle(r)
+      }
+      implicit val td = taskDef
       try {
         for (test <- s.SuiteImpl.tests) {
+          val startUtcMs = System.currentTimeMillis()
+          def durMs = System.currentTimeMillis() - startUtcMs
           if (test.ignored) {
-            results += TestResults.Ignored(test.name)
+            addResult(TestResults.Ignored(test.name))
             Tracker.Tests.ignored += 1
           } else {
             try {
               test.body()
               if (test.bad) {
-                results += TestResults.FailedBad(test.name)
+                addResult(TestResults.FailedBad(test.name, durMs))
                 Tracker.Tests.failed += 1
               } else {
-                results += TestResults.Passed(test.name)
+                addResult(TestResults.Passed(test.name, durMs))
                 Tracker.Tests.passed += 1
               }
             } catch {
               case e: AssertionFailure =>
                 if (test.bad) {
-                  results += TestResults.Passed(test.name)
+                  addResult(TestResults.Passed(test.name, durMs))
                   Tracker.Tests.passed += 1
                 } else {
-                  results += TestResults.FailedAssertion(test.name, e)
+                  addResult(TestResults.FailedAssertion(test.name, e, durMs))
                   Tracker.Tests.failed += 1
                 }
               case e if CatchableThrowable(e) =>
-                results += TestResults.FailedUnexpectedException(test.name, e)
+                addResult(TestResults.FailedUnexpectedException(test.name, e, durMs))
                 Tracker.Tests.failed += 1
               case e: Throwable =>
-                results += TestResults.FailedFatalException(test.name, e)
+                addResult(TestResults.FailedFatalException(test.name, e, durMs))
                 Tracker.Tests.aborted += 1
                 Tracker.Suites.aborted += 1
                 throw e
@@ -174,10 +205,10 @@ class OtestSbtJvmRunner(
               }
 
               r match {
-                case FailedBad(_) =>
-                case FailedAssertion(_, e) => trace(e, wasChained = false)
-                case FailedUnexpectedException(_, e) => trace(e, wasChained = false)
-                case FailedFatalException(_, e) => trace(e, wasChained = false)
+                case FailedBad(_, _) =>
+                case FailedAssertion(_, e, _) => trace(e, wasChained = false)
+                case FailedUnexpectedException(_, e, _) => trace(e, wasChained = false)
+                case FailedFatalException(_, e, _) => trace(e, wasChained = false)
               }
 
           }
