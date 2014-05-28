@@ -70,10 +70,13 @@ class OtestSbtJvmRunner(
   override def done(): String = {
     import Tracker.Tests._
     import Tracker.Suites
-    s"Run completed in ${Tracker.durMs()} milliseconds.\n" +
+    val res = s"Run completed in ${Tracker.durMs()} milliseconds.\n" +
       s"Total number of tests run: $total\n" +
       s"Suites: completed ${Suites.completed}, aborted ${Suites.aborted}\n" +
       s"Tests: succeeded $passed, failed $failed, aborted $aborted, ignored $ignored, pending $pending\n"
+
+    if (Tracker.Tests.failed > 0) sys.error(res)
+    res
 
   }
 
