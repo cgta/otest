@@ -4,6 +4,7 @@ package cgta.orunner
 import cgta.otest.{CatchableThrowable, AssertionFailure, FunSuite}
 import sbt.testing.{Task, SubclassFingerprint, Logger, EventHandler, TaskDef}
 import scala.collection.mutable.ArrayBuffer
+import cgta.orunner.TestResults.{FailedBad, FailedFatalException, FailedUnexpectedException, FailedAssertion}
 
 
 //////////////////////////////////////////////////////////////
@@ -48,27 +49,32 @@ class OtestSbtJvmRunner(
   override val args: Array[String],
   override val remoteArgs: Array[String]) extends sbt.testing.Runner {
 
-  //  println("CREATEEDDDD")
-  //  object Tracker {
-  //    private var passed  = 0
-  //    private var failed  = 0
-  //    private var ignored = 0
-  //
-  //    private var tasks: List[OTestTask] = Nil
-  //
-  //    def addTasks(tasks: List[OTestTask]) {
-  //      synchronized {
-  //        this.tasks :::= tasks
-  //      }
-  //    }
-  //    def markPassed() = { synchronized {passed += 1} }
-  //    def markFailed() = { synchronized {failed += 1} }
-  //    def markIgnored() = { synchronized {ignored += 1} }
-  //  }
+  object Tracker {
+    object Tests {
+      var passed  = 0
+      var failed  = 0
+      var aborted = 0
+      var ignored = 0
+      var pending = 0
+      def total = passed + failed + aborted + ignored + pending
+    }
+    object Suites {
+      var completed = 0
+      var aborted   = 0
+    }
+    var startUtcMs = 0L
+    def durMs() = System.currentTimeMillis() - startUtcMs
+  }
 
 
   override def done(): String = {
-    "DONE!!"
+    import Tracker.Tests._
+    import Tracker.Suites
+    s"Run completed in ${Tracker.durMs()} milliseconds.\n" +
+      s"Total number of tests run: $total\n" +
+      s"Suites: completed ${Suites.completed}, aborted ${Suites.aborted}\n" +
+      s"Tests: succeeded $passed, failed $failed, aborted $aborted, ignored $ignored, pending $pending\n"
+
   }
 
   override def tasks(taskDefs: Array[TaskDef]): Array[Task] = {
@@ -79,6 +85,7 @@ class OtestSbtJvmRunner(
     def tags(): Array[String] = Array()
 
     def execute(eventHandler: EventHandler, loggers: Array[Logger]): Array[Task] = {
+      Tracker.startUtcMs = System.currentTimeMillis()
       val name = taskDef.fullyQualifiedName()
       taskDef.fingerprint() match {
         case fingerprint: SubclassFingerprint =>
@@ -90,7 +97,6 @@ class OtestSbtJvmRunner(
           }
         case _ =>
       }
-
       Array()
     }
 
@@ -100,29 +106,38 @@ class OtestSbtJvmRunner(
         for (test <- s.SuiteImpl.tests) {
           if (test.ignored) {
             results += TestResults.Ignored(test.name)
+            Tracker.Tests.ignored += 1
           } else {
             try {
               test.body()
               if (test.bad) {
                 results += TestResults.FailedBad(test.name)
+                Tracker.Tests.failed += 1
               } else {
                 results += TestResults.Passed(test.name)
+                Tracker.Tests.passed += 1
               }
             } catch {
               case e: AssertionFailure =>
                 if (test.bad) {
                   results += TestResults.Passed(test.name)
+                  Tracker.Tests.passed += 1
                 } else {
                   results += TestResults.FailedAssertion(test.name, e)
+                  Tracker.Tests.failed += 1
                 }
               case e if CatchableThrowable(e) =>
                 results += TestResults.FailedUnexpectedException(test.name, e)
+                Tracker.Tests.failed += 1
               case e: Throwable =>
                 results += TestResults.FailedFatalException(test.name, e)
+                Tracker.Tests.aborted += 1
+                Tracker.Suites.aborted += 1
                 throw e
             }
           }
         }
+        Tracker.Suites.completed += 1
       } finally {
         loggers.foreach { logger =>
           def format(color: String, msg: String): String = {
@@ -143,6 +158,25 @@ class OtestSbtJvmRunner(
               logger.info(format(color = Console.YELLOW, msg = s"- ${r.name} !!! IGNORED !!!"))
             case r: TestResults.Failed =>
               logger.info(format(color = Console.RED, msg = s"- ${r.name} *** FAILED ***"))
+
+              def trace(e: Throwable, wasChained: Boolean) {
+                val prefix = if (wasChained) "  Caused by: " else "  Exception "
+                logger.info(format(color = Console.RED, msg = prefix + e.getClass.toString + ": " + e.getMessage))
+                e.getStackTrace.foreach { ste =>
+                  logger.info(format(color = Console.RED, msg = "    at " + ste.toString))
+                }
+                if (e.getCause != null) {
+                  trace(e, wasChained = true)
+                }
+              }
+
+              r match {
+                case FailedBad(_) =>
+                case FailedAssertion(_, e) => trace(e, wasChained = false)
+                case FailedUnexpectedException(_, e) => trace(e, wasChained = false)
+                case FailedFatalException(_, e) => trace(e, wasChained = false)
+              }
+
           }
         }
       }
@@ -151,34 +185,3 @@ class OtestSbtJvmRunner(
 }
 
 
-//
-//  val ClassTag  = scala.reflect.ClassTag
-//  val TestSuite = framework.TestSuite
-//  type TestSuite = framework.TestSuite
-//
-//  def runSuite(suite: TestSuite,
-//    path: Array[String],
-//    args: Array[String],
-//    addCount: String => Unit,
-//    log: String => Unit,
-//    addTotal: String => Unit) = {
-//    val (indices, found) = tests.resolve(path)
-//    addTotal(found.length.toString)
-//
-//    implicit val ec =
-//      if (utest.util.ArgParse.find("--parallel", _.toBoolean, false, true)(args)) {
-//        concurrent.ExecutionContext.global
-//      } else {
-//        ExecutionContext.RunNow
-//      }
-//
-//    val formatter = DefaultFormatter(args)
-//    val results = tests.run(
-//      (path, s) => {
-//        addCount(s.value.isSuccess.toString)
-//        log(formatter.formatSingle(path, s))
-//      },
-//      testPath = path
-//    )(ec)
-//    formatter.format(results)
-//  }
