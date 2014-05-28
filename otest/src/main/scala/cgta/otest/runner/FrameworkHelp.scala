@@ -1,7 +1,7 @@
 package cgta.otest
 package runner
 
-import sbt.testing.{Runner, SubclassFingerprint}
+import sbt.testing.SubclassFingerprint
 
 
 //////////////////////////////////////////////////////////////
@@ -12,31 +12,20 @@ import sbt.testing.{Runner, SubclassFingerprint}
 // Created by bjackman @ 5/23/14 3:55 PM
 //////////////////////////////////////////////////////////////
 
-object OtestSbtFramework {
+object FrameworkHelp {
   val funSuiteName = "cgta.otest.FunSuite"
-}
-
-class OtestSbtFramework extends sbt.testing.Framework {
-
-  def name(): String = "otest"
-
   def fingerprints(): Array[sbt.testing.Fingerprint] = Array(
-    new SubclassFingerprint  {
-      def superclassName = OtestSbtFramework.funSuiteName
+    new SubclassFingerprint {
+      def superclassName = funSuiteName
       def isModule = true
       def requireNoArgConstructor = false
     },
     new SubclassFingerprint {
-      def superclassName = OtestSbtFramework.funSuiteName
+      def superclassName = funSuiteName
       def isModule = false
       def requireNoArgConstructor = true
     }
   )
-
-  def runner(args: Array[String],
-    remoteArgs: Array[String],
-    testClassLoader: ClassLoader) : Runner = {
-    println("RUNNNNER")
-    new TestRunner(args, remoteArgs, testClassLoader)
-  }
 }
+
+

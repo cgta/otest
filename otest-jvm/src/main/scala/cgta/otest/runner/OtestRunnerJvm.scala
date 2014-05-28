@@ -1,5 +1,4 @@
-package cgta.otest
-package runner
+package cgta.otest.runner
 
 import sbt.testing.{TaskDef, Task}
 
@@ -9,12 +8,10 @@ import sbt.testing.{TaskDef, Task}
 // All Rights Reserved
 // please contact ben@jackman.biz or jeff@cgtanalytics.com
 // for licensing inquiries
-// Created by bjackman @ 5/23/14 4:01 PM
+// Created by bjackman @ 5/28/14 4:37 PM
 //////////////////////////////////////////////////////////////
 
-
-
-class TestRunner(
+class OtestRunnerJvm(
   override val args: Array[String],
   override val remoteArgs: Array[String],
   val testClassLoader: ClassLoader) extends sbt.testing.Runner {
@@ -26,11 +23,7 @@ class TestRunner(
   }
 
   override def tasks(taskDefs: Array[TaskDef]): Array[Task] = {
-    taskDefs.map { taskDef => new TestTask(taskDef, tracker, testClassLoader): Task}
+    taskDefs.map { taskDef => new OtestTaskJvm(taskDef, tracker, testClassLoader): Task}
   }
 }
-
-
-
-
 

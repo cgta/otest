@@ -1,25 +1,37 @@
 package cgta.otest
 package runner
 
-import sbt.testing.{Task, SubclassFingerprint, TaskDef, Logger, EventHandler}
-import cgta.otest.runner.TestResults.{FailedFatalException, Ignored, FailedBad, Passed, FailedAssertion, FailedUnexpectedException}
-
+import sbt.testing.{TaskDef, SubclassFingerprint, Task, Logger, EventHandler}
+import cgta.otest.runner.TestResults.{FailedFatalException, FailedUnexpectedException, FailedAssertion, Passed, FailedBad, Ignored}
+import scala.scalajs.tools.env.JSEnv
 
 //////////////////////////////////////////////////////////////
 // Copyright (c) 2014 Ben Jackman, Jeff Gomberg
 // All Rights Reserved
 // please contact ben@jackman.biz or jeff@cgtanalytics.com
 // for licensing inquiries
-// Created by bjackman @ 5/28/14 12:00 PM
+// Created by bjackman @ 5/28/14 12:19 PM
 //////////////////////////////////////////////////////////////
 
-trait TestTaskImpl extends ITestTask {
+class OtestTaskSjs(
+  val taskDef: TaskDef,
+  tracker: TestResultTracker,
+  testClassLoader: ClassLoader,
+  env: JSEnv) extends sbt.testing.Task {
 
-  def execute(eventHandler: EventHandler, loggers: Array[Logger]): Array[Task] = {
+  override def tags(): Array[String] = Array()
+
+  override def execute(eventHandler: EventHandler, loggers: Array[Logger]): Array[Task] = {
+    println("FOOOOO")
+    tracker.begin()
+    Array()
+  }
+
+  def executeb(eventHandler: EventHandler, loggers: Array[Logger]): Array[Task] = {
     tracker.begin()
     val name = taskDef.fullyQualifiedName()
     taskDef.fingerprint() match {
-      case fingerprint: SubclassFingerprint if fingerprint.superclassName() == OtestSbtFramework.funSuiteName =>
+      case fingerprint: SubclassFingerprint if fingerprint.superclassName() == FrameworkHelp.funSuiteName =>
         if (fingerprint.isModule) {
           val cls = Class.forName(name + "$")
           runSuite(eventHandler, cls.getField("MODULE$").get(cls).asInstanceOf[FunSuite], loggers)(taskDef)
@@ -43,7 +55,7 @@ trait TestTaskImpl extends ITestTask {
     }
   }
 
-  def runTest(test: TestWrapper, st: TestResultTracker#SuiteTracker)(implicit taskDef : TaskDef) = {
+  def runTest(test: TestWrapper, st: TestResultTracker#SuiteTracker)(implicit taskDef: TaskDef) = {
     val startUtcMs = System.currentTimeMillis()
     def durMs = System.currentTimeMillis() - startUtcMs
     if (test.ignored) {

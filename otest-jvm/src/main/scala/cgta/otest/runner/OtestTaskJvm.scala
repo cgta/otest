@@ -1,8 +1,8 @@
 package cgta.otest
 package runner
 
-import sbt.testing.{TaskDef, SubclassFingerprint, Task, Logger, EventHandler}
-import cgta.otest.runner.TestResults.{FailedFatalException, FailedUnexpectedException, FailedAssertion, Passed, FailedBad, Ignored}
+import sbt.testing.{Task, SubclassFingerprint, TaskDef, Logger, EventHandler}
+import cgta.otest.runner.TestResults.{FailedFatalException, Ignored, FailedBad, Passed, FailedAssertion, FailedUnexpectedException}
 
 
 //////////////////////////////////////////////////////////////
@@ -10,22 +10,21 @@ import cgta.otest.runner.TestResults.{FailedFatalException, FailedUnexpectedExce
 // All Rights Reserved
 // please contact ben@jackman.biz or jeff@cgtanalytics.com
 // for licensing inquiries
-// Created by bjackman @ 5/28/14 12:19 PM
+// Created by bjackman @ 5/28/14 12:00 PM
 //////////////////////////////////////////////////////////////
 
-trait TestTaskImpl extends ITestTask {
+class OtestTaskJvm(
+  val taskDef: TaskDef,
+  tracker: TestResultTracker,
+  testClassLoader: ClassLoader) extends sbt.testing.Task {
 
-  def execute(eventHandler: EventHandler, loggers: Array[Logger]): Array[Task] = {
-    println("FOOOOO")
-    tracker.begin()
-    Array()
-  }
+  override def tags(): Array[String] = Array()
 
-  def executeb(eventHandler: EventHandler, loggers: Array[Logger]): Array[Task] = {
+  override def execute(eventHandler: EventHandler, loggers: Array[Logger]): Array[Task] = {
     tracker.begin()
     val name = taskDef.fullyQualifiedName()
     taskDef.fingerprint() match {
-      case fingerprint: SubclassFingerprint if fingerprint.superclassName() == OtestSbtFramework.funSuiteName =>
+      case fingerprint: SubclassFingerprint if fingerprint.superclassName() == FrameworkHelp.funSuiteName =>
         if (fingerprint.isModule) {
           val cls = Class.forName(name + "$")
           runSuite(eventHandler, cls.getField("MODULE$").get(cls).asInstanceOf[FunSuite], loggers)(taskDef)
@@ -70,4 +69,5 @@ trait TestTaskImpl extends ITestTask {
       }
     }
   }
+
 }

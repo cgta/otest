@@ -8,11 +8,15 @@ import scala.scalajs.sbtplugin.testing.JSClasspathLoader
 import cgta.sbtxsjs.SbtXSjsPlugin
 import SbtXSjsPlugin.XSjsProjects
 
+
+
+
 object OtestCommonBuild extends Build {
   sys.props("scalac.patmat.analysisBudget") = "512"
 
   object Versions {
     lazy val scala = "2.10.2"
+    lazy val scalaJs = "0.5.0-M3"
   }
 
   lazy val macroSettings = Seq[Setting[_]](
@@ -26,6 +30,7 @@ object OtestCommonBuild extends Build {
   object Libs {
     val macrosQuasi      = Seq("org.scalamacros" %% "quasiquotes" % "2.0.0")
     val sbtTestInterface = Seq("org.scala-sbt" % "test-interface" % "1.0")
+//    val scalaJSSbtPlugin = Seq("org.scala-lang.modules.scalajs" % "scalajs-sbt-plugin" % Versions.scalaJs)
   }
 
   lazy val basicSettings =
@@ -67,6 +72,7 @@ object OtestBuild extends Build {
   lazy val otestX = xprojects("otest")
     .settingsShared(macroSettings: _*)
     .settingsShared(libraryDependencies ++= Libs.sbtTestInterface)
+    .settingsSjs(addSbtPlugin("org.scala-lang.modules.scalajs" % "scalajs-sbt-plugin" % "0.5.0-M3"))
 
   lazy val otest    = otestX.shared
   lazy val otestJvm = otestX.jvm
@@ -81,26 +87,26 @@ object OtestBuild extends Build {
 object OTestSampleBuild extends Build {
   import OtestCommonBuild._
 
-  val otestFramework = new TestFramework("cgta.otest.runner.OtestSbtFramework")
+  val otestFrameworkJvm = new TestFramework("cgta.otest.runner.OtestSbtFrameworkJvm")
+  val otestFrameworkSjs = new TestFramework("cgta.otest.runner.OtestSbtFrameworkSjs")
 
   lazy val osampletestsX = xprojects("osampletests")
     .settingsShared(libraryDependencies += "biz.cgta" %% "otest-jvm" % (version in ThisBuild).value,
-      testFrameworks += otestFramework)
+      testFrameworks += otestFrameworkJvm)
     .settingsJvm(libraryDependencies += "biz.cgta" %% "otest-jvm" % (version in ThisBuild).value,
-      testFrameworks += otestFramework)
+      testFrameworks += otestFrameworkJvm)
     .settingsSjs(
       libraryDependencies += "biz.cgta" %%% "otest-sjs" % (version in ThisBuild).value,
       (loadedTestFrameworks in Test) := {
-        import cgta.otest.runner.OtestSbtFramework
+        import cgta.otest.runner.OtestSbtFrameworkSjs
         (loadedTestFrameworks in Test).value.updated(
-          sbt.TestFramework(classOf[OtestSbtFramework].getName),
-          //          new OtestSbtFramework(environment = (ScalaJSKeys.jsEnv in Test).value)
-          new OtestSbtFramework()
+          sbt.TestFramework(classOf[OtestSbtFrameworkSjs].getName),
+          new OtestSbtFrameworkSjs(env = (ScalaJSKeys.jsEnv in Test).value)
         )
       },
       (ScalaJSKeys.jsEnv in Test) := new NodeJSEnv,
       testLoader := JSClasspathLoader((ScalaJSKeys.execClasspath in Compile).value),
-      testFrameworks += otestFramework
+      testFrameworks += otestFrameworkSjs
     )
 
 
