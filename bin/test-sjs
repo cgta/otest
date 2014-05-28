@@ -1,0 +1,3 @@
+#!/bin/bash -eax
+
+sbt "project otest-sjs" "publishLocal"; sbt "project osampletests-sjs" "test"

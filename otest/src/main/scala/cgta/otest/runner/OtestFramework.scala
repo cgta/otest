@@ -36,6 +36,7 @@ class OtestSbtFramework extends sbt.testing.Framework {
   def runner(args: Array[String],
     remoteArgs: Array[String],
     testClassLoader: ClassLoader) : Runner = {
+    println("RUNNNNER")
     new TestRunner(args, remoteArgs, testClassLoader)
   }
 }

@@ -1,7 +1,10 @@
 import sbt._
 import sbt.Keys._
-import scala.scalajs.sbtplugin.ScalaJSPlugin
 import org.sbtidea.SbtIdeaPlugin
+import scala.scalajs.sbtplugin.env.nodejs.NodeJSEnv
+import scala.scalajs.sbtplugin.ScalaJSPlugin
+import scala.scalajs.sbtplugin.ScalaJSPlugin._
+import scala.scalajs.sbtplugin.testing.JSClasspathLoader
 
 
 object OtestBuild extends Build {
@@ -32,9 +35,10 @@ object OtestBuild extends Build {
     scalacOptions += "-deprecation",
     scalacOptions += "-unchecked",
     scalacOptions += "-feature",
+//    scalacOptions += "-Xfatal-warnings",
     scalacOptions += "-language:implicitConversions",
-    scalacOptions += "-language:higherKinds",
-    scalacOptions += "-Xfatal-warnings")
+    scalacOptions += "-language:higherKinds"
+  )
 
   lazy val macroSettings = Seq[Setting[_]](
     libraryDependencies ++= Libs.macrosQuasi,
@@ -98,19 +102,31 @@ object OtestBuild extends Build {
   lazy val otestJvm   = otestCross.jvm
   lazy val otestSjs   = otestCross.sjs
 
-  val otestJvmFramework = new TestFramework("cgta.otest.runner.OtestSbtFramework")
+  val otestFramework = new TestFramework("cgta.otest.runner.OtestSbtFramework")
 
   lazy val osampletestsCross = new SjsCrossBuild("osampletests")
   lazy val osampletests      = osampletestsCross.shared
     .settings(
       libraryDependencies += "biz.cgta" %% "otest-jvm" % (version in ThisBuild).value,
-      testFrameworks += otestJvmFramework)
+      testFrameworks += otestFramework)
   lazy val osampletestsJvm   = osampletestsCross.jvm
     .settings(
       libraryDependencies += "biz.cgta" %% "otest-jvm" % (version in ThisBuild).value,
-      testFrameworks += otestJvmFramework)
+      testFrameworks += otestFramework)
   lazy val osampletestsSjs   = osampletestsCross.sjs
-
+    .settings(
+          libraryDependencies += "biz.cgta" %%% "otest-sjs" % (version in ThisBuild).value,
+      (loadedTestFrameworks in Test) := {
+        import cgta.otest.runner.OtestSbtFramework
+        (loadedTestFrameworks in Test).value.updated(
+          sbt.TestFramework(classOf[OtestSbtFramework].getName),
+//          new OtestSbtFramework(environment = (ScalaJSKeys.jsEnv in Test).value)
+          new OtestSbtFramework()
+        )
+      },
+      (ScalaJSKeys.jsEnv in Test) := new NodeJSEnv,
+      testLoader := JSClasspathLoader((ScalaJSKeys.execClasspath in Compile).value),
+          testFrameworks += otestFramework)
 
   lazy val root = Project("root", file("."))
     .aggregate(
