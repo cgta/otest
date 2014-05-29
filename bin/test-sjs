@@ -2,4 +2,4 @@
 
 sbt "project otest-sjs" "publishLocal"
 sbt "project otest-sjs-plugin" "publishLocal"
-sbt "project osampletests-sjs" "test"
+sbt "project osampletests-sjs" "update" "reload" "test"

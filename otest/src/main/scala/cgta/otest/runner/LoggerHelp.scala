@@ -2,7 +2,7 @@ package cgta.otest
 package runner
 
 import sbt.testing.Logger
-import cgta.otest.runner.TestResults.{FailedFatalException, FailedUnexpectedException, FailedAssertion, FailedBad}
+import cgta.otest.runner.TestResults.{FailedStringTrace, FailedFatalException, FailedUnexpectedException, FailedAssertion, FailedBad}
 
 
 //////////////////////////////////////////////////////////////
@@ -14,7 +14,17 @@ import cgta.otest.runner.TestResults.{FailedFatalException, FailedUnexpectedExce
 //////////////////////////////////////////////////////////////
 
 object LoggerHelp {
-  def logResults(name : String, loggers: Array[Logger], results: Seq[TestResult]) {
+  def trace(e: Throwable, wasChained: Boolean): List[String] = {
+    val prefix = if (wasChained) "Caused by: " else "Exception "
+    val top = prefix + e.getClass.toString + ": " + e.getMessage
+    val rest = e.getStackTrace.toList.map { ste =>
+      "  at " + ste.toString
+    }
+    top :: rest ::: (if (e.getCause != null) trace(e, wasChained = true) else Nil)
+  }
+
+
+  def logResults(name: String, loggers: Array[Logger], results: Seq[TestResult]) {
     loggers.map(ColorLogger).foreach { logger =>
       logger.green(name + ":")
       results.foreach {
@@ -24,22 +34,21 @@ object LoggerHelp {
         case r: TestResults.Failed =>
           logger.red(s"- ${r.name} *** FAILED ***")
 
-          def trace(e: Throwable, wasChained: Boolean) {
-            val prefix = if (wasChained) "  Caused by: " else "  Exception "
-            logger.red(prefix + e.getClass.toString + ": " + e.getMessage)
-            e.getStackTrace.foreach { ste =>
-              logger.red("    at " + ste.toString)
-            }
-            if (e.getCause != null) {
-              trace(e, wasChained = true)
+          def logException(e: Throwable) {
+            logTrace(trace(e, wasChained = false))
+          }
+          def logTrace(t: Seq[String]) {
+            t.foreach { line =>
+              logger.red("  " + line)
             }
           }
 
           r match {
-            case FailedBad(_, _) =>
-            case FailedAssertion(_, e, _) => trace(e, wasChained = false)
-            case FailedUnexpectedException(_, e, _) => trace(e, wasChained = false)
-            case FailedFatalException(_, e, _) => trace(e, wasChained = false)
+            case f: FailedBad =>
+            case f: FailedAssertion => logException(f.e)
+            case f: FailedUnexpectedException => logException(f.e)
+            case f: FailedFatalException => logException(f.e)
+            case f: FailedStringTrace => logTrace(f.trace)
           }
 
       }

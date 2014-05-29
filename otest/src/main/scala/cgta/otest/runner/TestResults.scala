@@ -61,4 +61,15 @@ object TestResults {
     override def throwable(): OptionalThrowable = new OptionalThrowable(e)
     override def status(): Status = Status.Error
   }
+  case class FailedStringTrace(
+    name: String,
+    trace: Seq[String],
+    duration: Long,
+    failed: Boolean = false,
+    aborted: Boolean = false)(implicit val taskDef: TaskDef) extends Failed {
+    override val isFailed  = failed
+    override val isAborted = aborted
+    override def throwable(): OptionalThrowable = new OptionalThrowable()
+    override def status(): Status = Status.Error
+  }
 }

@@ -14,7 +14,6 @@ import cgta.otest.FunSuite
 class SampleException extends Exception
 
 object TestAssertions extends FunSuite {
-  println("Running a test!")
   ignore("This test is ignored on purpose") {Assert.fail("should not be run")}
 
   test("assert passes on true input") {Assert.isTrue(true)}
