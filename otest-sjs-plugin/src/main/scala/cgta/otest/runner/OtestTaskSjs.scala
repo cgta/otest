@@ -3,11 +3,10 @@ package runner
 
 import sbt.testing.{TaskDef, SubclassFingerprint, Task, Logger, EventHandler}
 import cgta.otest.runner.TestResults.{FailedFatalException, FailedUnexpectedException, FailedAssertion, Passed, FailedBad, Ignored}
-import scala.scalajs.tools.env.{JSConsole, ConsoleJSConsole, JSEnv}
+import scala.scalajs.tools.env.{JSEnv, JSConsole, ConsoleJSConsole}
+import scala.scalajs.sbtplugin.testing.{SbtTestLoggerAccWrapper, TestOutputConsole}
 import scala.scalajs.tools.classpath.CompleteClasspath
 import scala.scalajs.tools.io.MemVirtualJSFile
-import scala.scalajs.sbtplugin.testing.{TestOutputConsole, Events, SbtTestLoggerAccWrapper}
-import java.io.PrintWriter
 
 //////////////////////////////////////////////////////////////
 // Copyright (c) 2014 Ben Jackman, Jeff Gomberg

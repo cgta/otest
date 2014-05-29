@@ -3,8 +3,8 @@ import sbt.Keys._
 
 import scala.scalajs.sbtplugin.env.nodejs.NodeJSEnv
 import scala.scalajs.sbtplugin.ScalaJSPlugin
-import ScalaJSPlugin._
 import scala.scalajs.sbtplugin.testing.JSClasspathLoader
+import ScalaJSPlugin._
 
 
 
@@ -12,16 +12,24 @@ import scala.scalajs.sbtplugin.testing.JSClasspathLoader
 object OtestBuild extends Build {
   import Common._
   lazy val otestX = xprojects("otest")
-    .settingsShared(macroSettings: _*)
-    .settingsShared(libraryDependencies ++= Libs.sbtTestInterface)
-    .settingsSjs(addSbtPlugin("org.scala-lang.modules.scalajs" % "scalajs-sbt-plugin" % "0.5.0-M3"))
+    .settingsAll(macroSettings: _*)
+    .settingsAll(libraryDependencies ++= Libs.sbtTestInterface)
+    .settingsAll(SbtPlugins.scalaJs)
 
-  lazy val otest    = otestX.shared
+  lazy val otest    = otestX.base
   lazy val otestJvm = otestX.jvm
   lazy val otestSjs = otestX.sjs
 
+  lazy val otestSjsPlugin = Project("otest-sjs-plugin", file("otest-sjs-plugin"))
+    .settings(basicSettings: _*)
+    .settings(libraryDependencies ++= Libs.sbtTestInterface)
+    .settings(SbtPlugins.scalaJs)
+    .settings(sbtPlugin := true)
+    .dependsOn(otestJvm)
+
+
   lazy val root = Project("root", file("."))
-    .aggregate(otestJvm, otestSjs)
+    .aggregate(otestJvm, otestSjs, otestSjsPlugin)
     .settings(basicSettings: _*)
     .settings(publish := {})
 }
@@ -33,7 +41,7 @@ object OtestSamplesBuild extends Build {
   val otestFrameworkSjs = new TestFramework("cgta.otest.runner.OtestSbtFrameworkSjs")
 
   lazy val osampletestsX = xprojects("osampletests")
-    .settingsShared(libraryDependencies += "biz.cgta" %% "otest-jvm" % (version in ThisBuild).value,
+    .settingsBase(libraryDependencies += "biz.cgta" %% "otest-jvm" % (version in ThisBuild).value,
       testFrameworks += otestFrameworkJvm)
     .settingsJvm(libraryDependencies += "biz.cgta" %% "otest-jvm" % (version in ThisBuild).value,
       testFrameworks += otestFrameworkJvm)
@@ -53,7 +61,7 @@ object OtestSamplesBuild extends Build {
 
 
 
-  lazy val osampletests    = osampletestsX.shared
+  lazy val osampletests    = osampletestsX.base
   lazy val osampletestsJvm = osampletestsX.jvm
   lazy val osampletestsSjs = osampletestsX.sjs
 }

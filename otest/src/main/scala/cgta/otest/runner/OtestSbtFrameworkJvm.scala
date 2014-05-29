@@ -1,4 +1,5 @@
-package cgta.otest.runner
+package cgta.otest
+package runner
 
 import sbt.testing.{Fingerprint, Runner}
 

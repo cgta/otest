@@ -1,9 +1,10 @@
-package cgta.otest.runner
+package cgta.otest
+package runner
 
 import sbt.testing.{Fingerprint, Runner}
-
 import scala.scalajs.tools.env.JSEnv
 import scala.scalajs.sbtplugin.testing.JSClasspathLoader
+
 
 //////////////////////////////////////////////////////////////
 // Copyright (c) 2014 Ben Jackman, Jeff Gomberg
