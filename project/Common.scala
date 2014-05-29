@@ -10,6 +10,7 @@ object Common {
 
   object Versions {
     lazy val scala = "2.10.2"
+    //Also change in plugins.sbt file
     lazy val scalaJs = "0.5.0-M3"
   }
 
@@ -31,7 +32,11 @@ object Common {
   }
 
   lazy val basicSettings =
+    sbtrelease.ReleasePlugin.releaseSettings ++
+    bintray.Plugin.bintrayPublishSettings ++
     Seq[Setting[_]](
+      licenses += ("MIT", url("http://opensource.org/licenses/MIT")),
+      (bintray.Keys.bintrayOrganization in bintray.Keys.bintray) := Some("cgta"),
       organization := "biz.cgta",
       scalaVersion := Versions.scala,
       shellPrompt <<= (thisProjectRef, version) {

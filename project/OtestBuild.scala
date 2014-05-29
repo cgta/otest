@@ -15,6 +15,7 @@ object OtestBuild extends Build {
     .settingsAll(macroSettings: _*)
     .settingsAll(libraryDependencies ++= Libs.sbtTestInterface)
     .settingsAll(SbtPlugins.scalaJs)
+    .settingsAll(bintray.Keys.repository in bintray.Keys.bintray := "cgta-maven-releases")
 
   lazy val otest    = otestX.base
   lazy val otestJvm = otestX.jvm
@@ -25,6 +26,8 @@ object OtestBuild extends Build {
     .settings(libraryDependencies ++= Libs.sbtTestInterface)
     .settings(SbtPlugins.scalaJs)
     .settings(sbtPlugin := true)
+    .settings(publishMavenStyle := false)
+    .settings(bintray.Keys.repository in bintray.Keys.bintray := "sbt-plugins")
     .dependsOn(otestJvm)
 
 
