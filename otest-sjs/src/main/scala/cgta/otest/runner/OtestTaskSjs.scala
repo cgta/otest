@@ -3,7 +3,11 @@ package runner
 
 import sbt.testing.{TaskDef, SubclassFingerprint, Task, Logger, EventHandler}
 import cgta.otest.runner.TestResults.{FailedFatalException, FailedUnexpectedException, FailedAssertion, Passed, FailedBad, Ignored}
-import scala.scalajs.tools.env.JSEnv
+import scala.scalajs.tools.env.{JSConsole, ConsoleJSConsole, JSEnv}
+import scala.scalajs.tools.classpath.CompleteClasspath
+import scala.scalajs.tools.io.MemVirtualJSFile
+import scala.scalajs.sbtplugin.testing.{TestOutputConsole, Events, SbtTestLoggerAccWrapper}
+import java.io.PrintWriter
 
 //////////////////////////////////////////////////////////////
 // Copyright (c) 2014 Ben Jackman, Jeff Gomberg
@@ -16,15 +20,53 @@ import scala.scalajs.tools.env.JSEnv
 class OtestTaskSjs(
   val taskDef: TaskDef,
   tracker: TestResultTracker,
-  testClassLoader: ClassLoader,
+  completeClasspath: CompleteClasspath,
   env: JSEnv) extends sbt.testing.Task {
 
   override def tags(): Array[String] = Array()
 
+  //See /home/bjackman/dev/github/scala-js/sbt-plugin/src/main/scala/scala/scalajs/sbtplugin/testing/TestTask.scala
   override def execute(eventHandler: EventHandler, loggers: Array[Logger]): Array[Task] = {
-    println("FOOOOO")
     tracker.begin()
+
+
+    //    val testConsole =
+    //      new TestOutputConsole(
+    //        ConsoleJSConsole,
+    //        eventHandler,
+    //        loggers,
+    //        new Events(taskDef),
+    //        completeClasspath,
+    //        noSourceMap = false)
+    val code = testRunnerFile()
+    val logger = new SbtTestLoggerAccWrapper(loggers)
+    val testConsole = new JSConsole {
+      override def log(msg: Any): Unit = println(msg)
+    }
+
+//    val pw = new PrintWriter("/home/bjackman/tmp/sjs.txt")
+//    pw.write(completeClasspath.allCode.head.content)
+//    pw.close()
+
+    env.runJS(completeClasspath, code, logger, testConsole)
+
     Array()
+  }
+
+  private def testRunnerFile() = {
+    val testKey = taskDef.fullyQualifiedName
+
+    // Note that taskDef does also have the selector, fingerprint and
+    // explicitlySpecified value we could pass to the framework. However, we
+    // believe that these are only moderately useful. Therefore, we'll silently
+    // ignore them.
+
+    new MemVirtualJSFile("Generated Launcher for OtestSjs Suite Execution").
+      withContent(s"""
+        console.log("!!!!Hello World!!!")
+        console.log(scala)
+        console.log("TestKey"+OtestTaskRunnerSjs().runSuite())
+      """)
   }
 
   def executeb(eventHandler: EventHandler, loggers: Array[Logger]): Array[Task] = {

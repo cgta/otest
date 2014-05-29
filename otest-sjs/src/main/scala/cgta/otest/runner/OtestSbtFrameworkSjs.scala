@@ -14,14 +14,23 @@ import scala.scalajs.sbtplugin.testing.JSClasspathLoader
 //////////////////////////////////////////////////////////////
 
 class OtestSbtFrameworkSjs(env: JSEnv) extends sbt.testing.Framework {
-  override def name(): String = "otest"
+  override def name(): String = "otest-sjs"
   override def fingerprints(): Array[Fingerprint] = FrameworkHelp.fingerprints()
 
   override def runner(args: Array[String],
     remoteArgs: Array[String],
     testClassLoader: ClassLoader): Runner = {
-    println("OTEST RUNNNER SJSJSJSJSJSJ")
-    new OtestRunnerSjs(args, remoteArgs, testClassLoader, env)
+    val jsClasspath = extractClasspath(testClassLoader)
+    new OtestRunnerSjs(args, remoteArgs, jsClasspath, env)
   }
+
+  /** extract classpath from ClassLoader (which must be a JSClasspathLoader) */
+  private def extractClasspath(cl: ClassLoader) = cl match {
+    case cl: JSClasspathLoader => cl.cp
+    case _ =>
+      sys.error("The Scala.js framework only works with a class loader of " +
+          s"type JSClasspathLoader (${cl.getClass} given)")
+  }
+
 
 }

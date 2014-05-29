@@ -52,6 +52,7 @@ object OtestSamplesBuild extends Build {
     )
 
 
+
   lazy val osampletests    = osampletestsX.shared
   lazy val osampletestsJvm = osampletestsX.jvm
   lazy val osampletestsSjs = osampletestsX.sjs
