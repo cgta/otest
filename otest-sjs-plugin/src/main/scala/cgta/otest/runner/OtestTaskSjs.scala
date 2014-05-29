@@ -63,8 +63,7 @@ class OtestTaskSjs(
     new MemVirtualJSFile("Generated Launcher for OtestSjs Suite Execution").
       withContent(s"""
         console.log("!!!!Hello World!!!")
-        console.log(scala)
-        console.log("TestKey"+OtestTaskRunnerSjs().runSuite())
+        console.log("TestKey"+OtestTaskRunnerSjs().runSuite($testKey))
       """)
   }
 

@@ -19,9 +19,6 @@ object OtestTaskRunnerSjs {
   @JSExport
   def runSuite(suite: js.Function0[FunSuite]) {
     println("SUITESSS"+ suite)
-    println("XXX"+ js.Dynamic.global.cgta )
-    println("XXX"+ js.Dynamic.global.TestAssertions)
-    println("XXX"+ js.Dynamic.global.TestAssertions$)
-    println("XXX"+ js.Dynamic.global.TestAssertions$)
+//    println("XXX"+ js.Dynamic.global.cgta )
   }
 }
