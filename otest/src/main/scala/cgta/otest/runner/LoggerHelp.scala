@@ -2,7 +2,9 @@ package cgta.otest
 package runner
 
 import sbt.testing.Logger
-import cgta.otest.runner.TestResults.{FailedStringTrace, FailedFatalException, FailedUnexpectedException, FailedAssertion, FailedBad}
+import cgta.otest.runner.TestResults.{FailedWithEitherTrace, FailedFatalException, FailedUnexpectedException, FailedAssertion, FailedBad}
+import scala.collection.mutable.ListBuffer
+import scala.annotation.tailrec
 
 
 //////////////////////////////////////////////////////////////
@@ -14,13 +16,31 @@ import cgta.otest.runner.TestResults.{FailedStringTrace, FailedFatalException, F
 //////////////////////////////////////////////////////////////
 
 object LoggerHelp {
-  def trace(e: Throwable, wasChained: Boolean): List[String] = {
-    val prefix = if (wasChained) "Caused by: " else "Exception "
-    val top = prefix + e.getClass.toString + ": " + e.getMessage
-    val rest = e.getStackTrace.toList.map { ste =>
-      "  at " + ste.toString
+
+  def trace(e: Throwable): List[String] = {
+    val lb = new ListBuffer[Either[String, StackTraceElement]]
+    @tailrec
+    def loop(e: Throwable) {
+      lb += Left(e.getClass + ": " + e.getMessage)
+      lb ++= e.getStackTrace.map(Right(_))
+      val cause = e.getCause
+      if (cause != null) loop(cause)
     }
-    top :: rest ::: (if (e.getCause != null) trace(e, wasChained = true) else Nil)
+    loop(e)
+    trace(lb.toList)
+  }
+
+  def trace(t: Seq[Either[String, StackTraceElement]]): List[String] = {
+    val lb = new ListBuffer[String]
+    var first = true
+    t.foreach {
+      case Left(msg) =>
+        lb += (if (first) "Exception " else "Caused by: ") + msg
+        first = false
+      case Right(ste) =>
+        lb += "  at " + ste.toString
+    }
+    lb.toList
   }
 
 
@@ -35,9 +55,12 @@ object LoggerHelp {
           logger.red(s"- ${r.name} *** FAILED ***")
 
           def logException(e: Throwable) {
-            logTrace(trace(e, wasChained = false))
+            logTraceStr(trace(e))
           }
-          def logTrace(t: Seq[String]) {
+          def logEitherTrace(t : Seq[Either[String, StackTraceElement]]) {
+            logTraceStr(trace(t))
+          }
+          def logTraceStr(t: Seq[String]) {
             t.foreach { line =>
               logger.red("  " + line)
             }
@@ -48,7 +71,7 @@ object LoggerHelp {
             case f: FailedAssertion => logException(f.e)
             case f: FailedUnexpectedException => logException(f.e)
             case f: FailedFatalException => logException(f.e)
-            case f: FailedStringTrace => logTrace(f.trace)
+            case f: FailedWithEitherTrace => logEitherTrace(f.trace)
           }
 
       }

@@ -3,8 +3,8 @@ package runner
 
 import scala.scalajs.js.annotation.JSExport
 import scala.scalajs.js
-import sbt.testing.{TaskDef, Logger, EventHandler}
 import cgta.otest.TestWrapper
+import scala.annotation.tailrec
 
 
 //////////////////////////////////////////////////////////////
@@ -15,35 +15,35 @@ import cgta.otest.TestWrapper
 // Created by bjackman @ 5/28/14 6:51 PM
 //////////////////////////////////////////////////////////////
 
-object OtestSjsConsoleProtocol {
-  def initString = "xXxNeckJamBanxXx/"
-
-  object Types {
-    val trackerSuiteCompleted = "tracker-suite-completed"
-    val trackerSuiteAborted   = "tracker-suite-aborted"
-    val stLogResults          = "st-log-results"
-    val stIgnored             = "st-ignored"
-    val stPassed              = "st-passed"
-    val stFailedBad           = "st-failed-bad"
-    val stFailedAssert        = "st-failed-assert"
-    val stFailedException     = "st-failed-exception"
-    val stFailedFatal         = "st-failed-fatal"
-    val stError               = "st-error"
-  }
-
-}
-
-import OtestSjsConsoleProtocol.Types
+import OtestConsoleProtocol.Types
 
 @JSExport
 object OtestTaskRunnerSjs {
   val * = js.Dynamic.literal
   def echo(ss: js.Dynamic) {
-    println(OtestSjsConsoleProtocol.initString + js.Dynamic.global.JSON.stringify(ss))
+    println(OtestConsoleProtocol.initString + js.Dynamic.global.JSON.stringify(ss))
   }
-  def getTrace(e : Throwable) : js.Array[String] = {
-    val xs = js.Array[String]()
-    xs.push(LoggerHelp.trace(e, wasChained = false) : _*)
+
+  def getTrace(e: Throwable): js.Array[Any] = {
+    val xs = js.Array[Any]()
+    def stackTraceElementToJsObj(ste: StackTraceElement): js.Object = {
+      import scala.scalajs.runtime.StackTrace.ColumnStackTraceElement
+      *(cn = ste.getClassName,
+        mn = ste.getMethodName,
+        fn = ste.getFileName,
+        l = ste.getLineNumber,
+        c = ste.getColumnNumber
+      ).asInstanceOf[js.Object]
+    }
+
+    @tailrec
+    def loop(e: Throwable) {
+      xs.push(e.getClass + ": " + e.getMessage)
+      xs.push(e.getStackTrace.map(stackTraceElementToJsObj): _*)
+      val cause = e.getCause
+      if (cause != null) loop(cause)
+    }
+    loop(e)
     xs
   }
 

@@ -13,7 +13,10 @@ import cgta.otest.FunSuite
 
 class SampleException extends Exception
 
+
+
 object TestAssertions extends FunSuite {
+  case class Foo()
   ignore("This test is ignored on purpose") {Assert.fail("should not be run")}
 
   test("assert passes on true input") {Assert.isTrue(true)}
@@ -30,21 +33,21 @@ object TestAssertions extends FunSuite {
   bad("assertNotAnyEquals fails on 2 != 2L") {Assert.isNotAnyEquals(2, 2L)}
 
   test("assertIdentityEquals") {
-    val x = "Hello"
+    val x = Foo()
     Assert.isIdentityEquals(x, x)
   }
   bad("assertIdentityEquals fails") {
-    val x = "Hello"
-    val y = new String("Hello")
+    val x = Foo()
+    val y = Foo()
     Assert.isIdentityEquals(x, y)
   }
   test("assertNotIdentityEquals") {
-    val x = "Hello"
-    val y = new String("Hello")
+    val x = Foo()
+    val y = Foo()
     Assert.isNotIdentityEquals(x, y)
   }
   bad("assertNotIdentityEquals fails") {
-    val x = "Hello"
+    val x = Foo()
     Assert.isNotIdentityEquals(x, x)
   }
 
