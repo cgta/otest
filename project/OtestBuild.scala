@@ -15,40 +15,42 @@ object Common {
   sys.props("scalac.patmat.analysisBudget") = "512"
 
   object Versions {
-    lazy val scala = "2.10.2"
+    lazy val scala      = "2.10.2"
+    lazy val crossScala = List("2.10.2", "2.10.3", "2.10.4", "2.11.0", "2.11.1")
+
     //Also change in plugins.sbt file
     lazy val scalaJs = "0.5.0-RC1"
   }
 
-  lazy val macroSettings = Seq[Setting[_]](
-    libraryDependencies ++= Libs.macrosQuasi,
-    addCompilerPlugin(CompilerPlugins.macrosPlugin))
 
   object CompilerPlugins {
-    lazy val macrosPlugin = "org.scalamacros" %% "paradise" % "2.0.0" cross CrossVersion.full
+    lazy val macrosPlugin = addCompilerPlugin("org.scalamacros" %% "paradise" % "2.0.0" cross CrossVersion.full)
   }
 
-  object SbtPlugins {
-    lazy val scalaJs = addSbtPlugin("org.scala-lang.modules.scalajs" % "scalajs-sbt-plugin" % Versions.scalaJs)
-  }
+  //  object SbtPlugins {
+  //    lazy val scalaJs = addSbtPlugin("org.scala-lang.modules.scalajs" % "scalajs-sbt-plugin" % Versions.scalaJs)
+  //  }
 
   object Libs {
-    lazy val macrosQuasi = Seq("org.scalamacros" %% "quasiquotes" % "2.0.0")
+    lazy val macrosQuasi      = Seq("org.scalamacros" %% "quasiquotes" % "2.0.0")
     lazy val sbtTestInterface = Seq("org.scala-sbt" % "test-interface" % "1.0")
+    lazy val scalaJsTools     = Seq("org.scala-lang.modules.scalajs" %% "scalajs-tools" % Versions.scalaJs)
+//    lazy val scalaJsPlugin     = Seq("org.scala-lang.modules.scalajs" %% "scalajs-plugin" % Versions.scalaJs)
+    val scalaReflect = "org.scala-lang" % "scala-reflect"
   }
 
   lazy val basicSettings =
     sbtrelease.ReleasePlugin.releaseSettings ++
-    bintray.Plugin.bintrayPublishSettings ++
-    Seq[Setting[_]](
-      licenses += ("MIT", url("http://opensource.org/licenses/MIT")),
-      (bintray.Keys.bintrayOrganization in bintray.Keys.bintray) := Some("cgta"),
-      organization := "biz.cgta",
-      scalaVersion := Versions.scala,
-      shellPrompt <<= (thisProjectRef, version) {
-        (id, v) => _ => "otest-build:%s:%s> ".format(id.project, v)
-      }
-    ) ++ scalacSettings
+      bintray.Plugin.bintrayPublishSettings ++
+      Seq[Setting[_]](
+        licenses +=("MIT", url("http://opensource.org/licenses/MIT")),
+        (bintray.Keys.bintrayOrganization in bintray.Keys.bintray) := Some("cgta"),
+        organization := "biz.cgta",
+        scalaVersion := Versions.scala,
+        shellPrompt <<= (thisProjectRef, version) {
+          (id, v) => _ => "otest-build:%s:%s> ".format(id.project, v)
+        }
+      ) ++ scalacSettings
 
 
   lazy val scalacSettings = Seq[Setting[_]](
@@ -77,13 +79,13 @@ object Common {
 }
 
 
-
 object OtestBuild extends Build {
   import Common._
   lazy val otestX = xprojects("otest")
-    .settingsAll(macroSettings: _*)
+    .settingsAll(libraryDependencies ++= (if (scalaVersion.value.startsWith("2.10.")) Libs.macrosQuasi else Nil))
+    .settingsAll(CompilerPlugins.macrosPlugin)
     .settingsAll(libraryDependencies ++= Libs.sbtTestInterface)
-    .settingsAll(SbtPlugins.scalaJs)
+    .settingsAll(libraryDependencies += Libs.scalaReflect % scalaVersion.value)
     .settingsAll(bintray.Keys.repository in bintray.Keys.bintray := "cgta-maven-releases")
 
   lazy val otest    = otestX.base
@@ -93,7 +95,10 @@ object OtestBuild extends Build {
   lazy val otestSjsPlugin = Project("otest-sjs-plugin", file("otest-sjs-plugin"))
     .settings(basicSettings: _*)
     .settings(libraryDependencies ++= Libs.sbtTestInterface)
-    .settings(SbtPlugins.scalaJs)
+    .settings(libraryDependencies += Libs.scalaReflect % scalaVersion.value)
+    .settings(libraryDependencies ++= Libs.scalaJsTools)
+//    .settings(libraryDependencies ++= Libs.scalaJsPlugin)
+//    .settings(SbtPlugins.scalaJs)
     .settings(sbtPlugin := true)
     .settings(publishMavenStyle := false)
     .settings(bintray.Keys.repository in bintray.Keys.bintray := "sbt-plugins")
@@ -101,9 +106,11 @@ object OtestBuild extends Build {
 
 
   lazy val root = Project("root", file("."))
-    .aggregate(otestJvm, otestSjs, otestSjsPlugin)
+    .aggregate(otestJvm, otestSjs)
     .settings(basicSettings: _*)
-    .settings(publish := {})
+    .settings(crossScalaVersions := Versions.crossScala)
+    .settings(publish :=())
+    .settings(publishLocal :=())
 }
 
 object OtestSamplesBuild extends Build {
@@ -130,7 +137,6 @@ object OtestSamplesBuild extends Build {
       testLoader := JSClasspathLoader((ScalaJSKeys.execClasspath in Compile).value),
       testFrameworks += otestFrameworkSjs
     )
-
 
 
   lazy val osampletests    = osampletestsX.base
