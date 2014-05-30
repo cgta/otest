@@ -17,7 +17,7 @@ object Common {
   object Versions {
     lazy val scala = "2.10.2"
     //Also change in plugins.sbt file
-    lazy val scalaJs = "0.5.0-M3"
+    lazy val scalaJs = "0.5.0-RC1"
   }
 
   lazy val macroSettings = Seq[Setting[_]](
@@ -64,7 +64,7 @@ object Common {
   def xprojects(name: String): XSjsProjects = {
     def getBasePackageName(projectName: String, suffix: String = null) = {
       val root = "cgta"
-      val name = Option(suffix).map(projectName.split(_)(0)).getOrElse(projectName)
+      val name = Option(suffix).fold(projectName)(projectName.split(_)(0))
       root + "." + name
     }
     SbtXSjsPlugin.xprojects(name)
