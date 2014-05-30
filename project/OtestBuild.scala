@@ -22,20 +22,19 @@ object Common {
     lazy val scalaJs = "0.5.0-RC1"
   }
 
+  object SbtPlugins {
+    lazy val scalaJs = addSbtPlugin("org.scala-lang.modules.scalajs" % "scalajs-sbt-plugin" % Versions.scalaJs)
+  }
 
   object CompilerPlugins {
     lazy val macrosPlugin = addCompilerPlugin("org.scalamacros" %% "paradise" % "2.0.0" cross CrossVersion.full)
   }
 
-  //  object SbtPlugins {
-  //    lazy val scalaJs = addSbtPlugin("org.scala-lang.modules.scalajs" % "scalajs-sbt-plugin" % Versions.scalaJs)
-  //  }
-
   object Libs {
     lazy val macrosQuasi      = Seq("org.scalamacros" %% "quasiquotes" % "2.0.0")
     lazy val sbtTestInterface = Seq("org.scala-sbt" % "test-interface" % "1.0")
     lazy val scalaJsTools     = Seq("org.scala-lang.modules.scalajs" %% "scalajs-tools" % Versions.scalaJs)
-//    lazy val scalaJsPlugin     = Seq("org.scala-lang.modules.scalajs" %% "scalajs-plugin" % Versions.scalaJs)
+    //    lazy val scalaJsPlugin     = Seq("org.scala-lang.modules.scalajs" %% "scalajs-plugin" % Versions.scalaJs)
     val scalaReflect = "org.scala-lang" % "scala-reflect"
   }
 
@@ -57,6 +56,7 @@ object Common {
     scalacOptions += "-deprecation",
     scalacOptions += "-unchecked",
     scalacOptions += "-feature",
+    // can't use this because of cross platform warnings
     //    scalacOptions += "-Xfatal-warnings",
     scalacOptions += "-language:implicitConversions",
     scalacOptions += "-language:higherKinds"
@@ -96,9 +96,9 @@ object OtestBuild extends Build {
     .settings(basicSettings: _*)
     .settings(libraryDependencies ++= Libs.sbtTestInterface)
     .settings(libraryDependencies += Libs.scalaReflect % scalaVersion.value)
-    .settings(libraryDependencies ++= Libs.scalaJsTools)
-//    .settings(libraryDependencies ++= Libs.scalaJsPlugin)
-//    .settings(SbtPlugins.scalaJs)
+    //    .settings(libraryDependencies ++= Libs.scalaJsTools)
+    //    .settings(libraryDependencies ++= Libs.scalaJsPlugin)
+    .settings(SbtPlugins.scalaJs)
     .settings(sbtPlugin := true)
     .settings(publishMavenStyle := false)
     .settings(bintray.Keys.repository in bintray.Keys.bintray := "sbt-plugins")
