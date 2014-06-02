@@ -1,5 +1,3 @@
 .idea/
 .idea_modules/
-/target
-*/target
-/project/project
+target

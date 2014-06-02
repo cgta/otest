@@ -1,6 +1,7 @@
 import sbt._
 import sbt.Keys._
 
+import sbtrelease.{ReleaseStateTransformations, ReleasePlugin, ReleaseStep}
 import scala.scalajs.sbtplugin.env.nodejs.NodeJSEnv
 import scala.scalajs.sbtplugin.ScalaJSPlugin
 import scala.scalajs.sbtplugin.testing.JSClasspathLoader
@@ -38,29 +39,49 @@ object Common {
     val scalaReflect = "org.scala-lang" % "scala-reflect"
   }
 
+  object Compiler {
+    lazy val settings = Seq[Setting[_]](
+      scalacOptions += "-deprecation",
+      scalacOptions += "-unchecked",
+      scalacOptions += "-feature",
+      // can't use this because of cross platform warnings
+      //    scalacOptions += "-Xfatal-warnings",
+      scalacOptions += "-language:implicitConversions",
+      scalacOptions += "-language:higherKinds"
+    )
+  }
+
+  object Prompt {
+    lazy val settings = Seq[Setting[_]](shellPrompt <<= (thisProjectRef, version) {
+      (id, v) => _ => "otest-build:%s:%s> ".format(id.project, v)
+    })
+  }
+
+  object Bintray {
+    lazy val settings = bintray.Plugin.bintrayPublishSettings :+
+      ((bintray.Keys.bintrayOrganization in bintray.Keys.bintray) := Some("cgta"))
+
+    def repo(name: String) = bintray.Keys.repository in bintray.Keys.bintray := name
+  }
+
+  object Release {
+    lazy val settings = sbtrelease.ReleasePlugin.releaseSettings
+  }
+
+  object License {
+    lazy val mit = licenses +=("MIT", url("http://opensource.org/licenses/MIT"))
+  }
+
+
   lazy val basicSettings =
-    sbtrelease.ReleasePlugin.releaseSettings ++
-      bintray.Plugin.bintrayPublishSettings ++
-      Seq[Setting[_]](
-        licenses +=("MIT", url("http://opensource.org/licenses/MIT")),
-        (bintray.Keys.bintrayOrganization in bintray.Keys.bintray) := Some("cgta"),
-        organization := "biz.cgta",
-        scalaVersion := Versions.scala,
-        shellPrompt <<= (thisProjectRef, version) {
-          (id, v) => _ => "otest-build:%s:%s> ".format(id.project, v)
-        }
-      ) ++ scalacSettings
-
-
-  lazy val scalacSettings = Seq[Setting[_]](
-    scalacOptions += "-deprecation",
-    scalacOptions += "-unchecked",
-    scalacOptions += "-feature",
-    // can't use this because of cross platform warnings
-    //    scalacOptions += "-Xfatal-warnings",
-    scalacOptions += "-language:implicitConversions",
-    scalacOptions += "-language:higherKinds"
-  )
+    Seq[Setting[_]](
+      organization := "biz.cgta",
+      scalaVersion := Versions.scala) ++
+      Compiler.settings ++
+      Prompt.settings ++
+      Bintray.settings ++
+      Release.settings :+
+      License.mit
 
 
   def xprojects(name: String): XSjsProjects = {
@@ -86,7 +107,7 @@ object OtestBuild extends Build {
     .settingsAll(CompilerPlugins.macrosPlugin)
     .settingsAll(libraryDependencies ++= Libs.sbtTestInterface)
     .settingsAll(libraryDependencies += Libs.scalaReflect % scalaVersion.value)
-    .settingsAll(bintray.Keys.repository in bintray.Keys.bintray := "cgta-maven-releases")
+    .settingsAll(Bintray.repo("cgta-maven-releases"))
 
   lazy val otest    = otestX.base
   lazy val otestJvm = otestX.jvm
@@ -96,51 +117,41 @@ object OtestBuild extends Build {
     .settings(basicSettings: _*)
     .settings(libraryDependencies ++= Libs.sbtTestInterface)
     .settings(libraryDependencies += Libs.scalaReflect % scalaVersion.value)
-    //    .settings(libraryDependencies ++= Libs.scalaJsTools)
-    //    .settings(libraryDependencies ++= Libs.scalaJsPlugin)
     .settings(SbtPlugins.scalaJs)
     .settings(sbtPlugin := true)
-    .settings(publishMavenStyle := false)
-    .settings(bintray.Keys.repository in bintray.Keys.bintray := "sbt-plugins")
+    .settings(Bintray.repo("sbt-plugins"))
     .dependsOn(otestJvm)
+  //    .settings(libraryDependencies ++= Libs.scalaJsTools)
+  //    .settings(libraryDependencies ++= Libs.scalaJsPlugin)
+  //    .settings(publishMavenStyle := false)
+
+  object ReleaseProcess {
+    import ReleaseStateTransformations._
+
+    lazy val settings = Seq[Setting[_]](
+      ReleasePlugin.ReleaseKeys.releaseProcess := {
+        Seq[ReleaseStep](
+          checkSnapshotDependencies, // : ReleaseStep
+          inquireVersions, // : ReleaseStep
+          runTest, // : ReleaseStep
+          setReleaseVersion, // : ReleaseStep
+          commitReleaseVersion, // : ReleaseStep, performs the initial git checks
+          tagRelease, // : ReleaseStep
+          publishArtifacts, // : ReleaseStep, checks whether `publishTo` is properly set up
+          setNextVersion, // : ReleaseStep
+          commitNextVersion, // : ReleaseStep
+          pushChanges // : ReleaseStep, also checks that an upstream branch is properly configured
+        )
+      }
+    )
+  }
 
 
   lazy val root = Project("root", file("."))
     .aggregate(otestJvm, otestSjs)
     .settings(basicSettings: _*)
     .settings(crossScalaVersions := Versions.crossScala)
+    .settings(ReleaseProcess.settings: _*)
     .settings(publish :=())
     .settings(publishLocal :=())
 }
-
-object OtestSamplesBuild extends Build {
-  import Common._
-
-  val otestFrameworkJvm = new TestFramework("cgta.otest.runner.OtestSbtFrameworkJvm")
-  val otestFrameworkSjs = new TestFramework("cgta.otest.runner.OtestSbtFrameworkSjs")
-
-  lazy val osampletestsX = xprojects("osampletests")
-    .settingsBase(libraryDependencies += "biz.cgta" %% "otest-jvm" % (version in ThisBuild).value,
-      testFrameworks += otestFrameworkJvm)
-    .settingsJvm(libraryDependencies += "biz.cgta" %% "otest-jvm" % (version in ThisBuild).value,
-      testFrameworks += otestFrameworkJvm)
-    .settingsSjs(
-      libraryDependencies += "biz.cgta" %%% "otest-sjs" % (version in ThisBuild).value,
-      (loadedTestFrameworks in Test) := {
-        import cgta.otest.runner.OtestSbtFrameworkSjs
-        (loadedTestFrameworks in Test).value.updated(
-          sbt.TestFramework(classOf[OtestSbtFrameworkSjs].getName),
-          new OtestSbtFrameworkSjs(env = (ScalaJSKeys.jsEnv in Test).value)
-        )
-      },
-      (ScalaJSKeys.jsEnv in Test) := new NodeJSEnv,
-      testLoader := JSClasspathLoader((ScalaJSKeys.execClasspath in Compile).value),
-      testFrameworks += otestFrameworkSjs
-    )
-
-
-  lazy val osampletests    = osampletestsX.base
-  lazy val osampletestsJvm = osampletestsX.jvm
-  lazy val osampletestsSjs = osampletestsX.sjs
-}
-

@@ -3,7 +3,7 @@ addSbtPlugin("org.scala-lang.modules.scalajs" % "scalajs-sbt-plugin" % "0.5.0-RC
 addSbtPlugin("biz.cgta" % "sbt-x-sjs-plugin" % "0.1.0")
 
 //Comment out during first build
-addSbtPlugin("biz.cgta" % "otest-sjs-plugin" % "0.1.1-SNAPSHOT")
+//addSbtPlugin("biz.cgta" % "otest-sjs-plugin" % "0.1.1-SNAPSHOT")
 
 addSbtPlugin("com.github.mpeltonen" % "sbt-idea" % "1.6.0")
 
