@@ -152,7 +152,7 @@ object OtestBuild extends Build {
     .aggregate(otestJvm, otestSjs)
     .settings(basicSettings: _*)
     .settings(crossScalaVersions := Versions.crossScala)
-//    .settings(ReleaseProcess.settings: _*)
+    .settings(ReleaseProcess.settings: _*)
     .settings(publish :=())
     .settings(publishLocal :=())
 }
