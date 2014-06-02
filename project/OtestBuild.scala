@@ -17,7 +17,8 @@ object Common {
 
   object Versions {
     lazy val scala      = "2.10.2"
-    lazy val crossScala = List("2.10.2", "2.10.3", "2.10.4", "2.11.0", "2.11.1")
+//    lazy val crossScala = List("2.10.2", "2.10.3", "2.10.4", "2.11.0", "2.11.1")
+    lazy val crossScala = List("2.10.4", "2.11.1")
 
     //Also change in plugins.sbt file
     lazy val scalaJs = "0.5.0-RC1"
@@ -151,7 +152,7 @@ object OtestBuild extends Build {
     .aggregate(otestJvm, otestSjs)
     .settings(basicSettings: _*)
     .settings(crossScalaVersions := Versions.crossScala)
-    .settings(ReleaseProcess.settings: _*)
+//    .settings(ReleaseProcess.settings: _*)
     .settings(publish :=())
     .settings(publishLocal :=())
 }
