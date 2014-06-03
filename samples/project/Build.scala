@@ -1,19 +1,28 @@
 import sbt._
 import sbt.Keys._
 
+import scala.scalajs.sbtplugin.ScalaJSPlugin
+import ScalaJSPlugin._
+import scala.scalajs.sbtplugin.env.nodejs.NodeJSEnv
+import scala.scalajs.sbtplugin.testing.JSClasspathLoader
+
+
 object OtestSamplesBuild extends Build {
-   import Common._
+  import cgta.osbt.OsCgtaSbtPlugin._
 
    val otestFrameworkJvm = new TestFramework("cgta.otest.runner.OtestSbtFrameworkJvm")
    val otestFrameworkSjs = new TestFramework("cgta.otest.runner.OtestSbtFrameworkSjs")
 
+   lazy val testVersion = "0.1.1"
+
+
    lazy val osampletestsX = xprojects("osampletests")
-     .settingsBase(libraryDependencies += "biz.cgta" %% "otest-jvm" % (version in ThisBuild).value,
+     .settingsBase(libraryDependencies += "biz.cgta" %% "otest-jvm" % testVersion,
        testFrameworks += otestFrameworkJvm)
-     .settingsJvm(libraryDependencies += "biz.cgta" %% "otest-jvm" % (version in ThisBuild).value,
+     .settingsJvm(libraryDependencies += "biz.cgta" %% "otest-jvm" % testVersion,
        testFrameworks += otestFrameworkJvm)
      .settingsSjs(
-       libraryDependencies += "biz.cgta" %%% "otest-sjs" % (version in ThisBuild).value,
+       libraryDependencies += "biz.cgta" %%% "otest-sjs" % testVersion,
        (loadedTestFrameworks in Test) := {
          import cgta.otest.runner.OtestSbtFrameworkSjs
          (loadedTestFrameworks in Test).value.updated(
