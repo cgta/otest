@@ -3,6 +3,7 @@ import sbt._
 import sbt.Keys._
 
 import sbtrelease.{ReleaseStateTransformations, ReleasePlugin, ReleaseStep}
+import scala.annotation.tailrec
 
 
 object OtestBuild extends Build {
@@ -85,60 +86,48 @@ object OtestBuild extends Build {
   }
 
   object CgtaSteps {
-    lazy val runTestOtest           = ReleaseStep(action = st0 => {
-      (for {
-        (st1, _) <- Project.runTask(test in Test in otestJvm, st0)
-        (st2, _) <- Project.runTask(test in Test in otestSjs, st1)
-      } yield {
-        st2
-      }).get
-    },
+
+    def runAllTasks[A](tasks: TaskKey[A]*)(st0: State): State = {
+      @tailrec
+      def loop(tasks: List[TaskKey[A]], st: State): State = {
+        tasks match {
+          case Nil => st
+          case task :: tasks => loop(tasks, Project.runTask(task, st).get._1)
+        }
+      }
+      loop(tasks.toList, st0)
+    }
+
+    lazy val otests = Seq(otestJvm, otestSjs)
+
+    lazy val runTestOtest = ReleaseStep(
+      action = runAllTasks(otests.map(test in Test in _): _*)(_),
       enableCrossBuild = true
     )
-    lazy val runTestPlugin          = ReleaseStep(action = st0 => {
-      (for {
-        (st1, _) <- Project.runTask(test in Test in otestPlugin, st0)
-      } yield {
-        st1
-      }).get
-    }
-    )
-    lazy val publishArtifactsOtest  = ReleaseStep(
-      action = st0 => {
-        (for {
-          (st1, _) <- Project.runTask(publish in Global in otestJvm, st0)
-          (st2, _) <- Project.runTask(publish in Global in otestSjs, st1)
-        } yield {
-          st2
-        }).get
-      },
+
+    lazy val runTestPlugin = ReleaseStep(
+      action = runAllTasks(test in Test in otestPlugin)(_))
+
+    lazy val publishArtifactsOtest = ReleaseStep(
+      action = runAllTasks(otests.map(publish in Global in _): _*)(_),
       check = st => {
         // getPublishTo fails if no publish repository is set up.
         val ex = Project.extract(st)
-        Classpaths.getPublishTo(ex.get(publishTo in Global in otestJvm))
-        Classpaths.getPublishTo(ex.get(publishTo in Global in otestSjs))
+        otests.foreach(p => Classpaths.getPublishTo(ex.get(publishTo in Global in p)))
         st
       },
       enableCrossBuild = true
     )
+
     lazy val publishArtifactsPlugin = ReleaseStep(
-      action = st0 => {
-        (for {
-          (st1, _) <- Project.runTask(publish in Global in otestPlugin, st0)
-        } yield {
-          st1
-        }).get
-      },
+      action = runAllTasks(publish in Global in otestPlugin)(_),
       check = st => {
         val ex = Project.extract(st)
         Classpaths.getPublishTo(ex.get(publishTo in Global in otestPlugin))
         st
       }
     )
-
-
   }
-
 
   lazy val root = Project("root", file("."))
     .aggregate(otestJvm, otestSjs, otestPlugin)
