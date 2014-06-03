@@ -1,20 +1,11 @@
+import cgta.osbt.OsCgtaSbtPlugin
 import sbt._
 import sbt.Keys._
 
 import sbtrelease.{ReleaseStateTransformations, ReleasePlugin, ReleaseStep}
-import scala.scalajs.sbtplugin.env.nodejs.NodeJSEnv
-import scala.scalajs.sbtplugin.ScalaJSPlugin
-import scala.scalajs.sbtplugin.testing.JSClasspathLoader
-import ScalaJSPlugin._
-
-import cgta.sbtxsjs.SbtXSjsPlugin
-import SbtXSjsPlugin.XSjsProjects
-
-import org.sbtidea.SbtIdeaPlugin
 
 
-
-object Build {
+object OtestBuild extends Build {
   import cgta.osbt.OsCgtaSbtPlugin._
 
   lazy val otestX = xprojects("otest")
@@ -23,7 +14,6 @@ object Build {
     .settingsAll(libraryDependencies ++= Libs.sbtTestInterface)
     .settingsAll(libraryDependencies += Libs.scalaReflect % scalaVersion.value)
     .settingsAll(Bintray.repo("cgta-maven-releases"))
-    .settingsAll(crossScalaVersions := Versions.crossScala)
     .settingsAll(ReleasePlugin.ReleaseKeys.releaseProcess := {
     import ReleaseStateTransformations._
     Seq[ReleaseStep](
@@ -37,8 +27,17 @@ object Build {
   lazy val otestJvm = otestX.jvm
   lazy val otestSjs = otestX.sjs
 
+  lazy val otestPlugin = Project("otest-sjs-plugin", file("./otest-sjs-plugin"))
+    .settings(basicSettings: _*)
+    .settings(libraryDependencies ++= Libs.sbtTestInterface)
+    .settings(libraryDependencies += Libs.scalaReflect % scalaVersion.value)
+    .settings(SbtPlugins.scalaJs)
+    .settings(sbtPlugin := true)
+    .settings(Bintray.repo("sbt-plugins"))
+    .dependsOn(otestJvm)
 
-//    .settings(addOsCgtaDep("otest-jvm"))
+
+  //    .settings(addOsCgtaDep("otest-jvm"))
 
   //    .settings(libraryDependencies ++= Libs.scalaJsTools)
   //    .settings(libraryDependencies ++= Libs.scalaJsPlugin)
@@ -67,22 +66,42 @@ object Build {
       ReleasePlugin.ReleaseKeys.releaseProcess := {
         import ReleaseStateTransformations._
         Seq[ReleaseStep](
-        runTests
+          checkSnapshotDependencies,
+          inquireVersions,
+          CgtaSteps.runClean,
+          CgtaSteps.runTestOtest,
+          setReleaseVersion,
+          CgtaSteps.publishLocalOtest,
+          CgtaSteps.runTestPlugin, //Make sure to force a load of dependencies!
+          CgtaSteps.publishLocalPlugin,
+          commitReleaseVersion, // performs the initial git checks
+          tagRelease,
+          publishArtifacts, // checks whether `publishTo` is properly set up
+          setNextVersion,
+          commitNextVersion,
+          pushChanges // also checks that an upstream branch is properly configured
         )
       }
     )
   }
 
-  lazy val runTests = ReleaseStep(action = st => {
-    // extract the build state
-    val extracted: Extracted = Project.extract(st)
-    val ref: ProjectRef = extracted.get(thisProjectRef)
-    extracted.runAggregated(test in Test in ref, st)
-  })
+  object CgtaSteps {
+    lazy val runTestOtest = ReleaseStep(action = st0 => {
+      (for {
+        (st1, _) <- Project.runTask(test in Test in otestJvm, st0)
+        (st2, _) <- Project.runTask(test in Test in otestSjs, st1)
+      } yield {
+        st2
+      }).get
+    },
+      enableCrossBuild = true
+    )
+  }
 
 
   lazy val root = Project("root", file("."))
     .aggregate(otestJvm, otestSjs)
+    .settings(crossScalaVersions := Versions.crossScala)
     .settings(basicSettings: _*)
     .settings(ReleaseProcess.settings: _*)
     .settings(publish :=())
