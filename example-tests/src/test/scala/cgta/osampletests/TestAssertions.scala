@@ -23,6 +23,7 @@ object TestAssertions extends FunSuite {
   bad("assert fails on false input") {Assert.isTrue(false)}
 
   test("assertEquals 1 == 1") {Assert.isEquals(1, 1)}
+  test("assertEquals Some(1) == Option(1)") {Assert.isEquals(Some(1), Option(1))}
   bad("assertEquals fails on 1 == 2") {Assert.isEquals(1, 2)}
   bad("assertNotEquals fails on 1 == 1") {Assert.isNotEquals(1, 1)}
   test("assertNotEquals 1 != 2") {Assert.isNotEquals(1, 2)}

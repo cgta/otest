@@ -7,9 +7,9 @@ if [ "$(ls -A .idea/libraries)" ]; then
   rm .idea/libraries/*
 fi
 
-if [ "$(ls -A .idea_modules)" ]; then
-  rm .idea_modules/*
-fi
+#if [ "$(ls -A .idea_modules)" ]; then
+#  rm .idea_modules/*
+#fi
 
 #Obviously gen the idea files
 sbt gen-idea

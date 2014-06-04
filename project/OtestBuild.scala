@@ -16,16 +16,13 @@ object OtestSamplesBuild extends Build {
   val otestFrameworkJvm = new TestFramework("cgta.otest.runner.OtestSbtFrameworkJvm")
   val otestFrameworkSjs = new TestFramework("cgta.otest.runner.OtestSbtFrameworkSjs")
 
-  lazy val testVersion = "0.1.1"
-
-
   lazy val exampleTestsX = xprojects("example-tests")
-    .settingsBase(libraryDependencies += "biz.cgta" %% "otest-jvm" % testVersion,
+    .settingsBase(libraryDependencies += "biz.cgta" %% "otest-jvm" % (version in ThisBuild).value,
       testFrameworks += otestFrameworkJvm)
-    .settingsJvm(libraryDependencies += "biz.cgta" %% "otest-jvm" % testVersion,
+    .settingsJvm(libraryDependencies += "biz.cgta" %% "otest-jvm" % (version in ThisBuild).value,
       testFrameworks += otestFrameworkJvm)
     .settingsSjs(
-      libraryDependencies += "biz.cgta" %%% "otest-sjs" % testVersion,
+      libraryDependencies += "biz.cgta" %%% "otest-sjs" % (version in ThisBuild).value,
       (loadedTestFrameworks in Test) := {
         import cgta.otest.runner.OtestSbtFrameworkSjs
         (loadedTestFrameworks in Test).value.updated(
