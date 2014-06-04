@@ -1,4 +1,5 @@
 #!/bin/bash -eax
 
 sbt "otest-sjs/publishLocal" "otest-sjs-plugin/publishLocal"
+cd examples
 sbt "example-tests-sjs/test"
