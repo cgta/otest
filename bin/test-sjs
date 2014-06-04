@@ -1,5 +1,4 @@
 #!/bin/bash -eax
 
-sbt "publishLocal"
-sbt "project osampletests-sjs" "reload plugins" 
-sbt "project osampletests-sjs" "test"
+sbt "otest-sjs/publishLocal" "otest-sjs-plugin/publishLocal"
+sbt "example-tests-sjs/test"

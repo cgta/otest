@@ -1,3 +1,5 @@
-#!/bin/bash -eax
+#!/bin/bash -e
 
-sbt "project otest-jvm" "publishLocal"; sbt "project osampletests-jvm" "test"
+sbt "otest-jvm/publishLocal"
+sbt "example-tests-jvm/test"
+
