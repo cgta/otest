@@ -6,6 +6,9 @@ java bytecode as well as javascript.
 It's suites are very similar to FunSuites from ScalaTest and its assertions
 are are simple functions that throw AssertExceptions on failure.
 
+
+# WORKIN IN PROGRESS NOT READY YET
+
 ## Motivation
 
 CGTA LLC has several hundred unit tests written as FunSuites for ScalaTest,
