@@ -1,6 +1,6 @@
 # otest 0.1.3 - Unit Testing for Scala and ScalaJs 
 
-It's suites are very similar to FunSuites from ScalaTest and its assertions simply throw `cgta.otest.AssertionFailure` when they fail.
+Its suites are very similar to FunSuites from ScalaTest and its assertions simply throw `cgta.otest.AssertionFailure` when they fail.
 
 It was inspired by [utest](https://github.com/lihaoyi/utest), but designed to fit into our legacy codebase, with minimal refactoring.
 
@@ -13,14 +13,14 @@ we are in the process of porting our codebase over to cross compile in ScalaJs
 and we needed something that would make porting over the unit tests as easy as
 possible.
 
-There is nothing amibitious about `otest`, it simply tries to be what we at CGTA need
+There is nothing amibitious about otest, it simply tries to be what we at CGTA need
 for our unit testing and nothing more.
 
 ##A Sample Test
 
 Here is an example of a very simple test suite
 
-TestFoo.scala:
+TestBinaryHelp.scala:
 ```scala
 import cgta.otest.FunSuite
 
@@ -30,10 +30,18 @@ object TestBinaryHelp extends FunSuite {
     Assert.isEquals(1, BinaryHelp.popCnt32(1))
     Assert.isEquals(1, BinaryHelp.popCnt32(2))
     Assert.isEquals(8, BinaryHelp.popCnt32(0xFF))
-    Assert.isEquals(1, BinaryHelp.popCnt32(Int.MinValue))
     Assert.isEquals(32, BinaryHelp.popCnt32(-1))
+    Assert.isEquals(1, BinaryHelp.popCnt32(Int.MinValue))
     Assert.isEquals(31, BinaryHelp.popCnt32(Int.MaxValue))
   }
+  test("ZigZag64") {
+    Assert.isEquals(0L, BinaryHelp.decodeZigZag64(BinaryHelp.encodeZigZag64(0)))
+    Assert.isEquals(-1L, BinaryHelp.decodeZigZag64(BinaryHelp.encodeZigZag64(-1)))
+    Assert.isEquals(1L, BinaryHelp.decodeZigZag64(BinaryHelp.encodeZigZag64(1)))
+    Assert.isEquals(Long.MaxValue, BinaryHelp.decodeZigZag64(BinaryHelp.encodeZigZag64(Long.MaxValue)))
+    Assert.isEquals(Long.MinValue, BinaryHelp.decodeZigZag64(BinaryHelp.encodeZigZag64(Long.MinValue)))
+  }  
+  ...
 }
 
 ```
@@ -129,17 +137,17 @@ add the following to the build.sbt:
 ### Additional Notes
 
 #### Licensing
-otest has an MIT see the [LICENSE file](/LICENSE).
+MIT see the [LICENSE file](/LICENSE).
 
 #### Cross building
 
 If you want to cross-build your source like we do for jvm+sjs projects compatibility
 look at the [CGTA sbt-x-sjs-plugin project](https://github.com/cgta/sbt-x-sjs-plugin) as well as the [example
-project](/examples) and this project's [build](/project)
+project](/examples) and this project's [build](/project) If you decide to go down this route I'd suggest giving [Better Living Through sbt](https://www.youtube.com/watch?v=y-_h_m4GjVo) a watch on youtube, to see how to setup a [firmwide plugin project](https://github.com/Banno/banno-sbt-plugin) for sbt.
 
 #### Thanks
 
-The ScalaJs team [Sébastien Doeraene](https://github.com/sjrd) & [Tobias Schlatter](https://github.com/gzm0) for making it possible to write code in worst language out there (except every other one, of course) while deploying to the web and being able to reach the largest audience of users in history.
+The ScalaJs team [Sébastien Doeraene](https://github.com/sjrd) & [Tobias Schlatter](https://github.com/gzm0) for making it possible to write code in worst language out there (except every other one, of course) while deploying to the web and reaching the largest audience of users in history.
 
 
 Thanks to Li Haoyi, for making [utest](https://github.com/lihaoyi/utest) as well as [several](https://github.com/lihaoyi/upickle), [other](https://github.com/lihaoyi/scala.rx), [excellent](https://github.com/lihaoyi/scalatags) ScalaJs compatible libraries
