@@ -13,8 +13,8 @@ we are in the process of porting our codebase over to cross compile in ScalaJs
 and we needed something that would make porting over the unit tests as easy as
 possible.
 
-There is nothing amibitious about otest, it simply tries to be what we at CGTA need
-for our unit testing and nothing more.
+There is nothing amibitious about otest, it simply tries to be what we need at CGTA
+for unit testing and nothing more.
 
 ##A Sample Test
 
@@ -63,7 +63,7 @@ fail(msg: String = null)
 intercepts[T](body: Unit) 
 intercepts[T](clues: Any*)(body: Unit) 
 ```
-*Note that the intercepts[T] are implemented with macros*
+*Note that the `intercepts[T]` are implemented with macros*
 
 A full list of available assertions can be seen [here](/otest/src/main/scala/cgta/otest/Asserts.scala).
 
@@ -80,7 +80,7 @@ Typically when comparing two things in an assert block those two things should b
 
 ##Using with SBT
 
-otest runs in sbt, it doesnt' have support for maven or any other build systems as we only use sbt in-house.
+otest runs in sbt, it doesn't have support for maven or any other build systems as we only use sbt in-house.
 
 It is is released in two versions, a -jvm version for projects targeting the Jvm and an -sjs version for ScalaJs projects targeting javascript.
 
@@ -88,7 +88,7 @@ It is is released in two versions, a -jvm version for projects targeting the Jvm
 
 Sbt has to register it's test runner with sbt. to do that you will have to add an sbt plugin to your project. The plugin is hosted on bintray which is an alternative to maven central. You will have to add a plugin for bintray as well.
 
-So in project/plugins.sbt add the following:
+So in `project/plugins.sbt` add the following:
 
    resolvers += Resolver.url(
       "bintray-sbt-plugin-releases",
@@ -104,7 +104,7 @@ where `0.1.3` is the version you want to use (this readme might fall out of date
 *NOTE: Be sure to keep this version in sync with the versions below!*
 
 If you are compiling for scala js you will also need to include the ScalaJs Plugin
-in your plugins.sbt file, making it look something like this:
+in your `project/plugins.sbt` file, making it look something like this:
 
 ```scala
 resolvers += Resolver.url(
@@ -121,7 +121,7 @@ addSbtPlugin("biz.cgta" % "otest-sbt-plugin" % "0.1.3")
 
 #### In a ScalaJvm project:
 
-add the following to the build.sbt:
+add the following to the `build.sbt`:
 
 ```scala
 seq(bintrayResolverSettings:_*)
@@ -133,7 +133,7 @@ libraryDependencies += "biz.cgta" %% "otest-jvm" % "0.1.3" % "test"
 
 #### In a ScalaJs project:
 
-add the following to the build.sbt:
+add the following to the `build.sbt`:
 
 ```scala
 seq(bintrayResolverSettings:_*)
@@ -147,13 +147,15 @@ libraryDependencies += "biz.cgta" %%% "otest-jvm" % "0.1.3" % "test"
 
 *ALSO NOTE: Just as above for you the plugin you will need to include the settings for ScalaJs, making your build.sbt file look something like this:*
 
-    scala.scalajs.sbtplugin.ScalaJSPlugin.scalaJSSettings
-    
-    seq(bintrayResolverSettings:_*)
-    
-    cgta.otest.OtestPlugin.settingsSjs
-    
-    libraryDependencies += "biz.cgta" %%% "otest-sjs" % "0.1.3" % "test"
+```scala
+scala.scalajs.sbtplugin.ScalaJSPlugin.scalaJSSettings
+
+seq(bintrayResolverSettings:_*)
+
+cgta.otest.OtestPlugin.settingsSjs
+
+libraryDependencies += "biz.cgta" %%% "otest-sjs" % "0.1.3" % "test"
+```
 
 ### Building otest
 clone the repo locally, cd into it, and run the shell script
