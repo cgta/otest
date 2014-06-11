@@ -1,12 +1,14 @@
-# otest - Unit Testing for Scala and ScalaJs
+# otest 0.1.3 - Unit Testing for Scala and ScalaJs 
 
 It's suites are very similar to FunSuites from ScalaTest and its assertions simply throw `cgta.otest.AssertionFailure` when they fail.
 
 It was inspired by [utest](https://github.com/lihaoyi/utest), but designed to fit into our legacy codebase, with minimal refactoring.
 
+It currently is built targeting `Scala 2.10` & `Scala 2.11` as well as  `ScalaJs 0.5.0-RC2`
+
 ## Motivation
 
-CGTA LLC has several hundred unit tests written as FunSuites for ScalaTest,
+CGTA  has several hundred unit tests written as FunSuites for ScalaTest,
 we are in the process of porting our codebase over to cross compile in ScalaJs
 and we needed something that would make porting over the unit tests as easy as
 possible.
@@ -36,11 +38,7 @@ object TestBinaryHelp extends FunSuite {
 
 ```
 
-
-A full list of available assertions can be seen [here](/otest/src/main/scala/cgta/otest/Asserts.scala).
-You can see them in action in their [unit test](/examples/example-tests/src/test/scala/cgta/osampletests/TestAssertions.scala)
-
-This is a summary:
+Here is a summary of the avaible assertions:
 ```scala
 isTrue(actual: Boolean, clues: Any*)
 isEquals[A, B](expected: A, actual: B, clues: Any*)(implicit ev: CanAssertEq[A, B])
@@ -57,8 +55,12 @@ fail(msg: String = null)
 intercepts[T](body: Unit) 
 intercepts[T](clues: Any*)(body: Unit) 
 ```
+*Note that the intercepts[T] are implemented with macros*
 
-*Note that the intercepts[T] are implemented with macros.*
+A full list of available assertions can be seen [here](/otest/src/main/scala/cgta/otest/Asserts.scala).
+
+You can see them in action in their [unit test](/examples/example-tests/src/test/scala/cgta/osampletests/TestAssertions.scala)
+
 
 #### Assert failures are just exceptions
 
@@ -80,9 +82,9 @@ Sbt has to register it's test runner with sbt. to do that you will have to add a
 
 So in project/plugins.sbt add the following:
 
-    addSbtPlugin("biz.cgta" % "otest-sbt-plugin" % "VERSION_TO_USE")
+    addSbtPlugin("biz.cgta" % "otest-sbt-plugin" % "0.1.3")
 
-where `VERSION_TO_USE` is the version you want to use. 
+where `0.1.3` is the version you want to use (this readme might fall out of date, check the tags in github to be sure)
 
 *NOTE: Be sure to keep this version in sync with the versions below!*
 
@@ -91,7 +93,7 @@ in your plugins.sbt file, making it look something like this:
 
     addSbtPlugin("org.scala-lang.modules.scalajs" % "scalajs-sbt-plugin" % "0.5.0-RC2")
     
-    addSbtPlugin("biz.cgta" % "otest-sbt-plugin" % "VERSION_TO_USE")
+    addSbtPlugin("biz.cgta" % "otest-sbt-plugin" % "0.1.3")
 
 #### In a ScalaJvm project:
 
@@ -99,7 +101,7 @@ add the following to the build.sbt:
 
     cgta.otest.OtestPlugin.settingsJvm
     
-    libraryDependencies += "biz.cgta" %% "otest-jvm" % "VERSION_TO_USE" % "test"
+    libraryDependencies += "biz.cgta" %% "otest-jvm" % "0.1.3" % "test"
 
 #### In a ScalaJs project:
 
@@ -107,7 +109,7 @@ add the following to the build.sbt:
 
     cgta.otest.OtestPlugin.settingsSjs
     
-    libraryDependencies += "biz.cgta" %%% "otest-jvm" % "VERSION_TO_USE" % "test"
+    libraryDependencies += "biz.cgta" %%% "otest-jvm" % "0.1.3" % "test"
 
 *NOTE: The triple '%%%' in the version string here, this is added to sbt by the scalaJs plugin. Whereas %% handles binary incompitabilites between versions of Scalac, %%% goes one step further and ensures compatibility between ScalaJs versions by adding a _ to the artifact id as well.*
 
@@ -117,7 +119,7 @@ add the following to the build.sbt:
     
     cgta.otest.OtestPlugin.settingsSjs
     
-    libraryDependencies += "biz.cgta" %%% "otest-sjs" % "VERSION_TO_USE" % "test"
+    libraryDependencies += "biz.cgta" %%% "otest-sjs" % "0.1.3" % "test"
 
 ### Building otest itself
 
@@ -132,19 +134,14 @@ otest has an MIT see the [LICENSE file](/LICENSE).
 #### Cross building
 
 If you want to cross-build your source like we do for jvm+sjs projects compatibility
-look at the [CGTA sbt-x-sjs-plugin](https://github.com/cgta/sbt-x-sjs-plugin project) as well as the [example
+look at the [CGTA sbt-x-sjs-plugin project](https://github.com/cgta/sbt-x-sjs-plugin) as well as the [example
 project](/examples) and this project's [build](/project)
-
-#### Better living through SBT
-
-I strongly suggestion making a firmwide or personal plugin to sbt as suggested in this excellent talk
-[Better Living Through sbt](https://www.youtube.com/watch?v=y-_h_m4GjVo). 
 
 #### Thanks
 
-The ScalaJs team particularly: 
-[Sébastien Doeraene](https://github.com/sjrd) & [Tobias Schlatter](https://github.com/gzm0)
+The ScalaJs team [Sébastien Doeraene](https://github.com/sjrd) & [Tobias Schlatter](https://github.com/gzm0) for making it possible to write code in worst language out there (except every other one, of course) while deploying to the web and being able to reach the largest audience of users in history.
 
-Thanks to Li Haoyi, for making [utest](https://github.com/lihaoyi/utest) as well as several [other](https://github.com/lihaoyi/scala.rx) [excellent](https://github.com/lihaoyi/scalatags) ScalaJs compatible libraries
+
+Thanks to Li Haoyi, for making [utest](https://github.com/lihaoyi/utest) as well as [several](https://github.com/lihaoyi/upickle), [other](https://github.com/lihaoyi/scala.rx), [excellent](https://github.com/lihaoyi/scalatags) ScalaJs compatible libraries
 
 
