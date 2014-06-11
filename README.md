@@ -106,36 +106,42 @@ where `0.1.3` is the version you want to use (this readme might fall out of date
 If you are compiling for scala js you will also need to include the ScalaJs Plugin
 in your plugins.sbt file, making it look something like this:
 
-    resolvers += Resolver.url(
-      "bintray-sbt-plugin-releases",
-      url("http://dl.bintray.com/content/sbt/sbt-plugin-releases"))(
-        Resolver.ivyStylePatterns)
-    
-    addSbtPlugin("me.lessis" % "bintray-sbt" % "0.1.1")
+```scala
+resolvers += Resolver.url(
+  "bintray-sbt-plugin-releases",
+  url("http://dl.bintray.com/content/sbt/sbt-plugin-releases"))(
+    Resolver.ivyStylePatterns)
 
-    addSbtPlugin("org.scala-lang.modules.scalajs" % "scalajs-sbt-plugin" % "0.5.0-RC2")
-    
-    addSbtPlugin("biz.cgta" % "otest-sbt-plugin" % "0.1.3")
+addSbtPlugin("me.lessis" % "bintray-sbt" % "0.1.1")
+
+addSbtPlugin("org.scala-lang.modules.scalajs" % "scalajs-sbt-plugin" % "0.5.0-RC2")
+
+addSbtPlugin("biz.cgta" % "otest-sbt-plugin" % "0.1.3")
+```
 
 #### In a ScalaJvm project:
 
 add the following to the build.sbt:
 
-    seq(bintrayResolverSettings:_*)
+```scala
+seq(bintrayResolverSettings:_*)
 
-    cgta.otest.OtestPlugin.settingsJvm
-    
-    libraryDependencies += "biz.cgta" %% "otest-jvm" % "0.1.3" % "test"
+cgta.otest.OtestPlugin.settingsJvm
+
+libraryDependencies += "biz.cgta" %% "otest-jvm" % "0.1.3" % "test"
+```
 
 #### In a ScalaJs project:
 
 add the following to the build.sbt:
 
-    seq(bintrayResolverSettings:_*)
+```scala
+seq(bintrayResolverSettings:_*)
 
-    cgta.otest.OtestPlugin.settingsSjs
-    
-    libraryDependencies += "biz.cgta" %%% "otest-jvm" % "0.1.3" % "test"
+cgta.otest.OtestPlugin.settingsSjs
+
+libraryDependencies += "biz.cgta" %%% "otest-jvm" % "0.1.3" % "test"
+```
 
 *NOTE: The triple '%%%' in the version string here, this is added to sbt by the scalaJs plugin. Whereas %% handles binary incompitabilites between versions of Scalac, %%% goes one step further and ensures compatibility between ScalaJs versions by adding a tag like `_sjs0.5.0-RC1` to the artifact id as well.*
 
