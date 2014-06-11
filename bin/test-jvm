@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-sbt "otest-jvm/publishLocal"
+sbt "+ otest-jvm/publishLocal"
 cd examples
 sbt "example-tests-jvm/test"
 
