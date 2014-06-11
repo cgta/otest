@@ -10,6 +10,10 @@ import scala.annotation.tailrec
 object OtestBuild extends Build {
   import cgta.osbt.OsCgtaSbtPlugin._
 
+  object Vers {
+    lazy val scalaJs = "0.5.0-RC2"
+  }
+
   lazy val otestX = xprojects("otest")
     .settingsAll(libraryDependencies ++= (if (scalaVersion.value.startsWith("2.10.")) Libs.macrosQuasi else Nil))
     .settingsAll(CompilerPlugins.macrosPlugin)
@@ -21,11 +25,11 @@ object OtestBuild extends Build {
   lazy val otestJvm = otestX.jvm
   lazy val otestSjs = otestX.sjs
 
-  lazy val otestPlugin = Project("otest-sjs-plugin", file("./otest-sjs-plugin"))
+  lazy val otestSbtPlugin = Project("otest-sbt-plugin", file("./otest-sbt-plugin"))
     .settings(basicSettings: _*)
     .settings(libraryDependencies ++= Libs.sbtTestInterface)
     .settings(libraryDependencies += Libs.scalaReflect % scalaVersion.value)
-    .settings(SbtPlugins.scalaJs)
+    .settings(addSbtPlugin("org.scala-lang.modules.scalajs" % "scalajs-sbt-plugin" % Vers.scalaJs % "provided"))
     .settings(sbtPlugin := true)
     .settings(Bintray.repo("sbt-plugins"))
     .dependsOn(otestJvm)
@@ -51,7 +55,7 @@ object OtestBuild extends Build {
       )
 
       lazy val runTestPlugin = ReleaseStep(
-        action = runAllTasks(test in Test in otestPlugin)(_))
+        action = runAllTasks(test in Test in otestSbtPlugin)(_))
 
       lazy val publishArtifactsOtest = ReleaseStep(
         action = runAllTasks(otests.map(publish in Global in _): _*)(_),
@@ -65,10 +69,10 @@ object OtestBuild extends Build {
       )
 
       lazy val publishArtifactsPlugin = ReleaseStep(
-        action = runAllTasks(publish in Global in otestPlugin)(_),
+        action = runAllTasks(publish in Global in otestSbtPlugin)(_),
         check = st => {
           val ex = Project.extract(st)
-          Classpaths.getPublishTo(ex.get(publishTo in Global in otestPlugin))
+          Classpaths.getPublishTo(ex.get(publishTo in Global in otestSbtPlugin))
           st
         }
       )
@@ -98,7 +102,7 @@ object OtestBuild extends Build {
 
 
   lazy val root = Project("root", file("."))
-    .aggregate(otestJvm, otestSjs, otestPlugin)
+    .aggregate(otestJvm, otestSjs, otestSbtPlugin)
     .settings(crossScalaVersions := Seq("2.10.2", "2.11.1"))
     .settings(basicSettings: _*)
     .settings(ReleaseProcess.settings: _*)
