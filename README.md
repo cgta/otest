@@ -86,9 +86,16 @@ It is is released in two versions, a -jvm version for projects targeting the Jvm
 
 #### Add the sbt plugin for otest:
 
-Sbt has to register it's test runner with sbt. to do that you will have to add an sbt plugin to your project. 
+Sbt has to register it's test runner with sbt. to do that you will have to add an sbt plugin to your project. The plugin is hosted on bintray which is an alternative to maven central. You will have to add a plugin for bintray as well.
 
 So in project/plugins.sbt add the following:
+
+   resolvers += Resolver.url(
+      "bintray-sbt-plugin-releases",
+      url("http://dl.bintray.com/content/sbt/sbt-plugin-releases"))(
+        Resolver.ivyStylePatterns)
+    
+    addSbtPlugin("me.lessis" % "bintray-sbt" % "0.1.1")
 
     addSbtPlugin("biz.cgta" % "otest-sbt-plugin" % "0.1.3")
 
@@ -96,8 +103,15 @@ where `0.1.3` is the version you want to use (this readme might fall out of date
 
 *NOTE: Be sure to keep this version in sync with the versions below!*
 
-if you are compiling for scala js you will also need to include the ScalaJs Plugin
+If you are compiling for scala js you will also need to include the ScalaJs Plugin
 in your plugins.sbt file, making it look something like this:
+
+    resolvers += Resolver.url(
+      "bintray-sbt-plugin-releases",
+      url("http://dl.bintray.com/content/sbt/sbt-plugin-releases"))(
+        Resolver.ivyStylePatterns)
+    
+    addSbtPlugin("me.lessis" % "bintray-sbt" % "0.1.1")
 
     addSbtPlugin("org.scala-lang.modules.scalajs" % "scalajs-sbt-plugin" % "0.5.0-RC2")
     
@@ -107,6 +121,8 @@ in your plugins.sbt file, making it look something like this:
 
 add the following to the build.sbt:
 
+    seq(bintrayResolverSettings:_*)
+
     cgta.otest.OtestPlugin.settingsJvm
     
     libraryDependencies += "biz.cgta" %% "otest-jvm" % "0.1.3" % "test"
@@ -114,6 +130,8 @@ add the following to the build.sbt:
 #### In a ScalaJs project:
 
 add the following to the build.sbt:
+
+    seq(bintrayResolverSettings:_*)
 
     cgta.otest.OtestPlugin.settingsSjs
     
@@ -124,6 +142,8 @@ add the following to the build.sbt:
 *ALSO NOTE: Just as above for you the plugin you will need to include the settings for ScalaJs, making your build.sbt file look something like this:*
 
     scala.scalajs.sbtplugin.ScalaJSPlugin.scalaJSSettings
+    
+    seq(bintrayResolverSettings:_*)
     
     cgta.otest.OtestPlugin.settingsSjs
     
