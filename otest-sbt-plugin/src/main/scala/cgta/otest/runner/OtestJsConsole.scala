@@ -26,7 +26,7 @@ class OtestJsConsole(
   completeClasspath: CompleteClasspath)(
   implicit taskDef: TaskDef) extends JSConsole {
 
-  private lazy val sourceMapper: Option[SourceMapper] = None
+  private lazy val sourceMapper: Option[SourceMapper] = Some(new SourceMapper(completeClasspath))
   private val st = tracker.newSuiteTracker(taskDef, eventHandler)
 
   override def log(msg: Any): Unit = {
