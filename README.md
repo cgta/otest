@@ -119,7 +119,7 @@ add the following to the build.sbt:
     
     libraryDependencies += "biz.cgta" %%% "otest-jvm" % "0.1.3" % "test"
 
-*NOTE: The triple '%%%' in the version string here, this is added to sbt by the scalaJs plugin. Whereas %% handles binary incompitabilites between versions of Scalac, %%% goes one step further and ensures compatibility between ScalaJs versions by adding a _ to the artifact id as well.*
+*NOTE: The triple '%%%' in the version string here, this is added to sbt by the scalaJs plugin. Whereas %% handles binary incompitabilites between versions of Scalac, %%% goes one step further and ensures compatibility between ScalaJs versions by adding a tag like `_sjs0.5.0-RC1` to the artifact id as well.*
 
 *ALSO NOTE: Just as above for you the plugin you will need to include the settings for ScalaJs, making your build.sbt file look something like this:*
 
@@ -147,7 +147,7 @@ project](/examples) and this project's [build](/project) If you decide to go dow
 
 #### Thanks
 
-The ScalaJs team [Sébastien Doeraene](https://github.com/sjrd) & [Tobias Schlatter](https://github.com/gzm0) for making it possible to write code in worst language out there (except every other one, of course) while deploying to the web and reaching the largest audience of users in history.
+The ScalaJs team [Sï¿½bastien Doeraene](https://github.com/sjrd) & [Tobias Schlatter](https://github.com/gzm0) for making it possible to write code in worst language out there (except every other one, of course) while deploying to the web and reaching the largest audience of users in history.
 
 
 Thanks to Li Haoyi, for making [utest](https://github.com/lihaoyi/utest) as well as [several](https://github.com/lihaoyi/upickle), [other](https://github.com/lihaoyi/scala.rx), [excellent](https://github.com/lihaoyi/scalatags) ScalaJs compatible libraries
