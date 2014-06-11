@@ -1,4 +1,4 @@
-# otest 0.1.3 - Unit Testing for Scala and ScalaJs 
+# otest 0.1.4 - Unit Testing for Scala and ScalaJs
 
 Its suites are very similar to FunSuites from ScalaTest and its assertions simply throw `cgta.otest.AssertionFailure` when they fail.
 
@@ -97,9 +97,9 @@ So in `project/plugins.sbt` add the following:
     
     addSbtPlugin("me.lessis" % "bintray-sbt" % "0.1.1")
 
-    addSbtPlugin("biz.cgta" % "otest-sbt-plugin" % "0.1.3")
+    addSbtPlugin("biz.cgta" % "otest-sbt-plugin" % "0.1.4")
 
-where `0.1.3` is the version you want to use (this readme might fall out of date, check the tags in github to be sure)
+where `0.1.4` is the version you want to use (this readme might fall out of date, check the tags in github to be sure)
 
 *NOTE: Be sure to keep this version in sync with the versions below!*
 
@@ -116,7 +116,7 @@ addSbtPlugin("me.lessis" % "bintray-sbt" % "0.1.1")
 
 addSbtPlugin("org.scala-lang.modules.scalajs" % "scalajs-sbt-plugin" % "0.5.0-RC2")
 
-addSbtPlugin("biz.cgta" % "otest-sbt-plugin" % "0.1.3")
+addSbtPlugin("biz.cgta" % "otest-sbt-plugin" % "0.1.4")
 ```
 
 #### In a ScalaJvm project:
@@ -128,7 +128,7 @@ seq(bintrayResolverSettings:_*)
 
 cgta.otest.OtestPlugin.settingsJvm
 
-libraryDependencies += "biz.cgta" %% "otest-jvm" % "0.1.3" % "test"
+libraryDependencies += "biz.cgta" %% "otest-jvm" % "0.1.4" % "test"
 ```
 
 #### In a ScalaJs project:
@@ -140,7 +140,7 @@ seq(bintrayResolverSettings:_*)
 
 cgta.otest.OtestPlugin.settingsSjs
 
-libraryDependencies += "biz.cgta" %%% "otest-jvm" % "0.1.3" % "test"
+libraryDependencies += "biz.cgta" %%% "otest-jvm" % "0.1.4" % "test"
 ```
 
 *NOTE: The triple '%%%' in the version string here, this is added to sbt by the scalaJs plugin. Whereas %% handles binary incompitabilites between versions of Scalac, %%% goes one step further and ensures compatibility between ScalaJs versions by adding a tag like `_sjs0.5.0-RC1` to the artifact id as well.*
@@ -154,7 +154,7 @@ seq(bintrayResolverSettings:_*)
 
 cgta.otest.OtestPlugin.settingsSjs
 
-libraryDependencies += "biz.cgta" %%% "otest-sjs" % "0.1.3" % "test"
+libraryDependencies += "biz.cgta" %%% "otest-sjs" % "0.1.4" % "test"
 ```
 
 ### Building otest
