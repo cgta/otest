@@ -1,4 +1,9 @@
 #!/bin/bash -eax
 
-$(dirname $0)/test-jvm
-$(dirname $0)/test-sjs
+# $(dirname $0)/test-jvm
+# $(dirname $0)/test-sjs
+
+sbt "+ otest-jvm/publishLocal" "+ otest-sjs/publishLocal" 
+sbt "otest-sbt-plugin/publishLocal"
+cd examples
+sbt "example-tests-jvm/test" "example-tests-sjs/test"
