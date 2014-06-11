@@ -129,9 +129,13 @@ add the following to the build.sbt:
     
     libraryDependencies += "biz.cgta" %%% "otest-sjs" % "0.1.3" % "test"
 
-### Building otest itself
+### Building otest
+clone the repo locally, cd into it, and run the shell script
 
+`bin/test`
 
+It will publishLocal SNAPSHOT versions of otest for jvm and sjs, and it will run
+the example tests on each of them.
 
 
 ### Additional Notes
