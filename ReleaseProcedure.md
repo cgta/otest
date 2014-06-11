@@ -9,6 +9,7 @@ To next snapshot version:
 examples/example-tests/build.sbt
 examples/example-tests-jvm/build.sbt
 examples/example-tests-sjs/build.sbt
+examples/project/plugins.sbt
 
 run `git commit -a -m "Preparing for release"`
 run `git push origin HEAD`
