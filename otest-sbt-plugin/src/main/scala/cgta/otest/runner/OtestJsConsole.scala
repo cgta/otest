@@ -8,6 +8,7 @@ import scala.scalajs.tools.classpath.CompleteClasspath
 import scala.scalajs.tools.sourcemap.SourceMapper
 import scala.util.parsing.json.JSON
 import scala.collection.mutable.ArrayBuffer
+import scala.util.control.NonFatal
 
 
 //////////////////////////////////////////////////////////////
@@ -27,7 +28,7 @@ class OtestJsConsole(
   implicit taskDef: TaskDef) extends JSConsole {
 
   private lazy val sourceMapper: Option[SourceMapper] = Some(new SourceMapper(completeClasspath))
-  private val st = tracker.newSuiteTracker(taskDef, eventHandler)
+  private      val st                                 = tracker.newSuiteTracker(taskDef, eventHandler)
 
   override def log(msg: Any): Unit = {
     import OtestConsoleProtocol.Types
@@ -56,7 +57,10 @@ class OtestJsConsole(
                 def lineNum = map("l").asInstanceOf[Double].toInt
                 def colNum = map("c").asInstanceOf[Double].toInt
                 val ste = new StackTraceElement(className, methodName, fileName, lineNum)
-                buf += Right(sourceMapper.map(_.map(ste, colNum)).getOrElse(ste))
+                def tryIt[A](f: => A): Option[A] = {
+                  try {Some(f)} catch {case NonFatal(e) => None}
+                }
+                buf += Right(sourceMapper.flatMap(sm => tryIt(sm.map(ste, colNum))).getOrElse(ste))
             }
             buf.toList
           }
