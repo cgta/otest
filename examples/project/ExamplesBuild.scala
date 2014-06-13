@@ -14,7 +14,8 @@ object ExamplesBuild extends Build {
     Keys.libraryDependencies += "biz.cgta" %% "otest-jvm" % otestVersion % "test")
   lazy val exampleTestsJvm = exampleTestsX.jvm.settings(
     Keys.libraryDependencies += "biz.cgta" %% "otest-jvm" % otestVersion % "test")
+  import scala.scalajs.sbtplugin.ScalaJSPlugin._
   lazy val exampleTestsSjs = exampleTestsX.sjs.settings(
-    Keys.libraryDependencies += "biz.cgta" %% "otest-sjs" % otestVersion % "test")
+    Keys.libraryDependencies += "biz.cgta" %%% "otest-sjs" % otestVersion % "test")
 }
 
