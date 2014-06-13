@@ -96,13 +96,6 @@ resolvers += Resolver.url(
   url("http://dl.bintray.com/content/sbt/sbt-plugin-releases"))(
     Resolver.ivyStylePatterns)
     
-//Needed for a few days until otest is added to sbt-plugin-releases
-resolvers += Resolver.url(
-  "bintray-sbt-plugin-releases",
-  url("http://dl.bintray.com/content/cgta/sbt-plugins"))(
-    Resolver.ivyStylePatterns)
-    
-
 addSbtPlugin("me.lessis" % "bintray-sbt" % "0.1.1")
 
 addSbtPlugin("biz.cgta" % "otest-sbt-plugin" % "0.1.4")
@@ -119,12 +112,6 @@ in your `project/plugins.sbt` file, making it look something like this:
 resolvers += Resolver.url(
   "bintray-sbt-plugin-releases",
   url("http://dl.bintray.com/content/sbt/sbt-plugin-releases"))(
-    Resolver.ivyStylePatterns)
-
-//Needed for a few days until otest is added to sbt-plugin-releases
-resolvers += Resolver.url(
-  "bintray-sbt-plugin-releases",
-  url("http://dl.bintray.com/content/cgta/sbt-plugins"))(
     Resolver.ivyStylePatterns)
 
 addSbtPlugin("me.lessis" % "bintray-sbt" % "0.1.1")
