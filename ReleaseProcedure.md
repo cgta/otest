@@ -2,10 +2,10 @@ run `bin/test`
 
 bump version numbers:
 
-To next release version:
+To next RELEASE version:
 README.md
 
-To next snapshot version:
+To next SNAPSHOT version:
 examples/project/plugins.sbt
 examples/project/ExampleBuild.scala
 
