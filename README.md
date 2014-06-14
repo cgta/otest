@@ -6,7 +6,8 @@ It was inspired by [utest](https://github.com/lihaoyi/utest), but designed to fi
 
 It currently is built targeting `Scala 2.10` & `Scala 2.11` as well as  `ScalaJs 0.5.0`
 
-## Motivation
+Motivation
+==========
 
 CGTA  has several hundred unit tests written as FunSuites for ScalaTest,
 we are in the process of porting our codebase over to cross compile in ScalaJs
@@ -16,9 +17,10 @@ possible.
 There is nothing amibitious about otest, it simply tries to be what we need at CGTA
 for unit testing and nothing more.
 
-##A Sample Test
-
+A Sample Test
+=============
 Here is an example of a very simple test suite
+----------------------------------------------
 
 TestBinaryHelp.scala:
 ```scala
@@ -47,6 +49,7 @@ object TestBinaryHelp extends FunSuite {
 ```
 
 Here is a summary of the avaible assertions:
+--------------------------------------------
 ```scala
 isTrue(actual: Boolean, clues: Any*)
 isEquals[A, B](expected: A, actual: B, clues: Any*)(implicit ev: CanAssertEq[A, B])
@@ -70,21 +73,25 @@ A full list of available assertions can be seen [here](/otest/src/main/scala/cgt
 You can see them in action in their [unit test](/examples/example-tests/src/test/scala/cgta/osampletests/TestAssertions.scala)
 
 
-#### Assert failures are just exceptions
+Assert failures are just exceptions
+-----------------------------------
 
 An assertion works by throwing an exception of type `AssertionFailure` the test suite will catch that exception, terminate the current test and display a message describing the failure, a stack trace, and any clues provided.
 
-#### Type-safety and `isEquals` vs `isAnyEquals`: 
+Type-safety and `isEquals` vs `isAnyEquals`:
+--------------------------------------------
 
 Typically when comparing two things in an assert block those two things should be of the same type. By default otest enforces this with the `isEquals` / `isNotEquals` asserts. If you want to use standard java-style equality just use `isAnyEquals`. The typesafe way is most often the right way so it's the default. One special case kept popping up when porting our tests over, combinations of `Some[_]`, `Option[_]` and `None`. With the magic of implicits isEquals is able to recognize that `isEquals(Some(4), Option(4))` is a reasonable enough assertion while `isEquals(Some(4), Some("4"))` isn't. When comparing different types of sequences, we coerce them to a common type of sequence, typically just calling `.toList`. 
 
-##Using with SBT
+Using with SBT
+==============
 
 otest runs in sbt, it doesn't have support for maven or any other build systems as we only use sbt in-house.
 
 It is is released in two versions, a -jvm version for projects targeting the Jvm and an -sjs version for ScalaJs projects targeting javascript.
 
-#### Add the sbt plugin for otest:
+Add the sbt plugin for otest:
+-----------------------------
 
 otest has to register it's test runner with sbt. to do that you will have to add an sbt plugin to your project. The plugin is hosted on bintray which is an alternative to maven central. You will have to add a plugin for bintray as well if don't alreay have one.
  
@@ -111,7 +118,8 @@ addSbtPlugin("biz.cgta" % "otest-sbt-plugin" % "0.1.6")
 ```
 
 
-#### In a ScalaJvm project:
+In a ScalaJvm project:
+----------------------
 
 add the following to the `build.sbt`:
 
@@ -123,7 +131,8 @@ cgta.otest.OtestPlugin.settingsJvm
 libraryDependencies += "biz.cgta" %% "otest-jvm" % "0.1.6" % "test"
 ```
 
-#### In a ScalaJs project:
+In a ScalaJs project:
+---------------------
 
 add the following to the `build.sbt`:
 
@@ -137,7 +146,8 @@ libraryDependencies += "biz.cgta" %%% "otest-jvm" % "0.1.6" % "test"
 
 *NOTE: The triple '%%%' in the version string here, this is added to sbt by the scalaJs plugin. Whereas %% handles binary incompitabilites between versions of Scalac, %%% goes one step further and ensures compatibility between ScalaJs versions by adding a tag like `_sjs0.5` to the artifact id as well.*
 
-### Building otest
+Building otest
+==============
 clone the repo locally, cd into it, and run the shell script
 
 `bin/test`
@@ -146,22 +156,22 @@ It will publishLocal SNAPSHOT versions of otest for jvm and sjs, and it will run
 the example tests on each of them.
 
 
-### Additional Notes
+Additional Notes
+================
 
-#### Licensing
+Licensing
+---------
 MIT see the [LICENSE file](/LICENSE).
 
-#### Cross building
-
+Cross building
+--------------
 If you want to cross-build your source like we do for jvm+sjs projects compatibility
 look at the [CGTA sbt-x-sjs-plugin project](https://github.com/cgta/sbt-x-sjs-plugin) as well as the [example
 project](/examples) and this project's [build](/project) If you decide to go down this route I'd suggest giving [Better Living Through sbt](https://www.youtube.com/watch?v=y-_h_m4GjVo) a watch on youtube, to see how to setup a [firmwide plugin project](https://github.com/Banno/banno-sbt-plugin) for sbt.
 
-#### Thanks
-
+Thanks
+------
 The ScalaJs team [S�bastien Doeraene](https://github.com/sjrd) & [Tobias Schlatter](https://github.com/gzm0) for making it possible to write code in worst language out there (except every other one, of course) while deploying to the web and reaching the largest audience of users in history.
-
-
 Thanks to Li Haoyi, for making [utest](https://github.com/lihaoyi/utest) as well as [several](https://github.com/lihaoyi/upickle), [other](https://github.com/lihaoyi/scala.rx), [excellent](https://github.com/lihaoyi/scalatags) ScalaJs compatible libraries
 
 
