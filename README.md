@@ -137,18 +137,6 @@ libraryDependencies += "biz.cgta" %%% "otest-jvm" % "0.1.6" % "test"
 
 *NOTE: The triple '%%%' in the version string here, this is added to sbt by the scalaJs plugin. Whereas %% handles binary incompitabilites between versions of Scalac, %%% goes one step further and ensures compatibility between ScalaJs versions by adding a tag like `_sjs0.5` to the artifact id as well.*
 
-*ALSO NOTE: Just as above for you the plugin you will need to include the settings for ScalaJs, making your build.sbt file look something like this:*
-
-```scala
-scala.scalajs.sbtplugin.ScalaJSPlugin.scalaJSSettings
-
-seq(bintrayResolverSettings:_*)
-
-cgta.otest.OtestPlugin.settingsSjs
-
-libraryDependencies += "biz.cgta" %%% "otest-sjs" % "0.1.6" % "test"
-```
-
 ### Building otest
 clone the repo locally, cd into it, and run the shell script
 
