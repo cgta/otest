@@ -14,8 +14,6 @@ we are in the process of porting our codebase over to cross compile in ScalaJs
 and we needed something that would make porting over the unit tests as easy as
 possible.
 
-There is nothing amibitious about otest, it simply tries to be what we need at CGTA
-for unit testing and nothing more.
 
 A Sample Test
 =============
