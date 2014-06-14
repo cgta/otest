@@ -57,10 +57,15 @@ class OtestJsConsole(
                 def lineNum = map("l").asInstanceOf[Double].toInt
                 def colNum = map("c").asInstanceOf[Double].toInt
                 val ste = new StackTraceElement(className, methodName, fileName, lineNum)
-                def tryIt[A](f: => A): Option[A] = {
-                  try {Some(f)} catch {case NonFatal(e) => None}
+                def tryMapSte(f: => StackTraceElement): StackTraceElement = {
+                  try {
+                    f
+                  } catch {
+                    case NonFatal(e) =>
+                     ste
+                  }
                 }
-                buf += Right(sourceMapper.flatMap(sm => tryIt(sm.map(ste, colNum))).getOrElse(ste))
+                buf += Right(sourceMapper.fold(ste)(sm => tryMapSte(sm.map(ste, colNum))))
             }
             buf.toList
           }

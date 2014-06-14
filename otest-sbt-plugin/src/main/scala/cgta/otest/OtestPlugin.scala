@@ -1,10 +1,9 @@
 package cgta.otest
 
+import sbt._
 import sbt.{Setting, TestFramework}
 import scala.scalajs.sbtplugin.ScalaJSPlugin.ScalaJSKeys
-import scala.scalajs.sbtplugin.env.nodejs.NodeJSEnv
-import scala.scalajs.sbtplugin.testing.JSClasspathLoader
-
+import cgta.otest.runner.OtestSbtFrameworkSjs
 
 //////////////////////////////////////////////////////////////
 // Copyright (c) 2014 Ben Jackman, Jeff Gomberg
@@ -19,16 +18,18 @@ object OtestPlugin {
     sbt.Keys.testFrameworks += new TestFramework("cgta.otest.runner.OtestSbtFrameworkJvm")
   )
 
-  lazy val settingsSjs = Seq[Setting[_]](
-      (sbt.Keys.loadedTestFrameworks in sbt.Test) := {
-        import cgta.otest.runner.OtestSbtFrameworkSjs
-        (sbt.Keys.loadedTestFrameworks in sbt.Test).value.updated(
-          sbt.TestFramework(classOf[OtestSbtFrameworkSjs].getName),
-          new OtestSbtFrameworkSjs(env = (ScalaJSKeys.jsEnv in sbt.Test).value)
-        )
-      },
-      (ScalaJSKeys.jsEnv in sbt.Test) := new NodeJSEnv,
-      sbt.Keys.testLoader := JSClasspathLoader((ScalaJSKeys.execClasspath in sbt.Compile).value),
-    sbt.Keys.testFrameworks += new TestFramework("cgta.otest.runner.OtestSbtFrameworkSjs")
+
+  private lazy val otestTestFrameworkSettings = Seq(
+    sbt.Keys.loadedTestFrameworks +=
+      sbt.TestFramework("cgta.otest.runner.OtestSbtFrameworkSjs") ->
+        new OtestSbtFrameworkSjs(env = ScalaJSKeys.jsEnv.value)
   )
+
+  private lazy val otestTestSettings = otestTestFrameworkSettings ++
+    inTask(ScalaJSKeys.packageStage)(otestTestFrameworkSettings) ++
+    inTask(ScalaJSKeys.fastOptStage)(otestTestFrameworkSettings) ++
+    inTask(ScalaJSKeys.fullOptStage)(otestTestFrameworkSettings)
+
+
+  lazy val settingsSjs = inConfig(sbt.Test)(otestTestSettings)
 }

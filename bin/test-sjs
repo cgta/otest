@@ -2,4 +2,4 @@
 
 sbt "+ otest-sjs/publishLocal" "otest-sbt-plugin/publishLocal"
 cd examples
-sbt "example-tests-sjs/test"
+sbt "example-tests-sjs/test" "example-tests-sjs/fastOptStage::test"
