@@ -3,7 +3,8 @@
 
 #Make sure on master
 gru
-gmomff
+
+#Commit and push up changes
 
 #Run Tests
 bin/test
