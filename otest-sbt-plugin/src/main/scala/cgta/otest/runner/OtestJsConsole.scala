@@ -57,15 +57,17 @@ class OtestJsConsole(
                 def lineNum = map("l").asInstanceOf[Double].toInt
                 def colNum = map("c").asInstanceOf[Double].toInt
                 val ste = new StackTraceElement(className, methodName, fileName, lineNum)
-                def tryMapSte(f: => StackTraceElement): StackTraceElement = {
-                  try {
-                    f
-                  } catch {
-                    case NonFatal(e) =>
-                     ste
+                def mapSource: Option[StackTraceElement] = {
+                  sourceMapper.map { sm =>
+                    try {
+                      sm.map(ste, colNum)
+                    } catch {
+                      case NonFatal(e) => ste
+                      case e: NoClassDefFoundError => ste
+                    }
                   }
                 }
-                buf += Right(sourceMapper.fold(ste)(sm => tryMapSte(sm.map(ste, colNum))))
+                buf += Right(mapSource.getOrElse(ste))
             }
             buf.toList
           }

@@ -1,4 +1,10 @@
 
+
+
+#Make sure on master
+gru
+gmomff
+
 #Run Tests
 bin/test
 
@@ -14,7 +20,11 @@ sbt release
 #Bump version to next SNAPSHOT version:
   examples/project/plugins.sbt
   examples/project/ExampleBuild.scala
- 
+
+git commit -a -m "Setting next SNAPSHOT"
+git push origin HEAD
+
+
 #Run Test
 bin/test
 
