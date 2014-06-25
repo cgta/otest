@@ -69,6 +69,7 @@ object Build extends sbt.Build {
 
   lazy val otestX = SbtXSjsPlugin.xSjsProjects("otest", file("otest"))
     .settingsAll(organization := "biz.cgta")
+    .settingsAll(PublishSets.settings: _*)
     .settingsAll(publishMavenStyle := true)
     .settingsAll(SbtIdeaPlugin.ideaBasePackage := Some("cgta.otest"))
     .settingsAll(OsCgtaSbtPlugin.basicSettings: _*)
@@ -84,6 +85,7 @@ object Build extends sbt.Build {
 
   lazy val otestSbtPlugin = Project("otest-sbt-plugin", file("./otest-sbt-plugin"))
     .settings(organization := "biz.cgta")
+    .settings(PublishSets.settings: _*)
     .settings(libraryDependencies ++= Libs.sbtTestInterface)
     .settings(libraryDependencies += Libs.scalaReflect % scalaVersion.value)
     .settings(addSbtPlugin("org.scala-lang.modules.scalajs" % "scalajs-sbt-plugin" % Versions.scalaJs % "provided"))
