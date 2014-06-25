@@ -161,6 +161,7 @@ object Build extends sbt.Build {
     .aggregate(otestJvm, otestSjs, otestSbtPlugin)
     .settings(crossScalaVersions := Seq("2.10.2", "2.11.1"))
     .settings(OsCgtaSbtPlugin.basicSettings: _*)
+    .settings(sbtrelease.ReleasePlugin.releaseSettings: _*)
     .settings(ReleaseProcess.settings: _*)
     .settings(publish :=())
     .settings(publishLocal :=())
