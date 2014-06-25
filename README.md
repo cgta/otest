@@ -1,4 +1,4 @@
-# otest 0.1.7 - Unit Testing for Scala and ScalaJs
+# otest 0.1.8 - Unit Testing for Scala and ScalaJs
 
 Its suites are very similar to FunSuites from ScalaTest and its assertions simply throw `cgta.otest.AssertionFailure` when they fail.
 
@@ -91,28 +91,13 @@ It is is released in two versions, a -jvm version for projects targeting the Jvm
 Add the sbt plugin for otest:
 -----------------------------
 
-otest has to register it's test runner with sbt. to do that you will have to add an sbt plugin to your project. The plugin is hosted on bintray which is an alternative to maven central. You will have to add a plugin for bintray as well if don't alreay have one.
+otest has to register it's test runner with sbt. to do that you will have to add an sbt plugin to your project.
  
 Following sbt best practices, each plugin should be put in their own file.
 
-If you don't have the bintray plugin in your project yet create a file called `project/bintray.sbt` and add the following:
+Create a file called `project/otest.sbt` and add the following:
 ```scala
-resolvers += Resolver.url(
-  "bintray-sbt-plugin-releases",
-  url("http://dl.bintray.com/content/sbt/sbt-plugin-releases"))(
-    Resolver.ivyStylePatterns)
-
-addSbtPlugin("me.lessis" % "bintray-sbt" % "0.1.1")
-```
-
-To include the `otest-sbt-plugin` Create a file called `project/otest.sbt` and add the following:
-```scala
-resolvers += Resolver.url(
-  "bintray-cgta-sbt-plugins",
-  url("http://dl.bintray.com/content/cgta/sbt-plugins"))(
-    Resolver.ivyStylePatterns)
-    
-addSbtPlugin("biz.cgta" % "otest-sbt-plugin" % "0.1.7")
+addSbtPlugin("biz.cgta" % "otest-sbt-plugin" % "0.1.8")
 ```
 
 
@@ -122,11 +107,9 @@ In a ScalaJvm project:
 add the following to the `build.sbt`:
 
 ```scala
-seq(bintrayResolverSettings:_*)
-
 cgta.otest.OtestPlugin.settingsJvm
 
-libraryDependencies += "biz.cgta" %% "otest-jvm" % "0.1.7" % "test"
+libraryDependencies += "biz.cgta" %% "otest-jvm" % "0.1.8" % "test"
 ```
 
 In a ScalaJs project:
@@ -135,11 +118,9 @@ In a ScalaJs project:
 add the following to the `build.sbt`:
 
 ```scala
-seq(bintrayResolverSettings:_*)
-
 cgta.otest.OtestPlugin.settingsSjs
 
-libraryDependencies += "biz.cgta" %%% "otest-jvm" % "0.1.7" % "test"
+libraryDependencies += "biz.cgta" %%% "otest-jvm" % "0.1.8" % "test"
 ```
 
 *NOTE: The triple '%%%' in the version string here, this is added to sbt by the scalaJs plugin. Whereas %% handles binary incompitabilites between versions of Scalac, %%% goes one step further and ensures compatibility between ScalaJs versions by adding a tag like `_sjs0.5` to the artifact id as well.*
