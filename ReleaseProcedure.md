@@ -22,10 +22,11 @@ sbt release
   examples/project/plugins.sbt
   examples/project/ExampleBuild.scala
 
+#Run Test
+bin/test
+
+#Push SNAPSHOT version up to master
 git commit -a -m "Setting next SNAPSHOT"
 git push origin HEAD
 
-
-#Run Test
-bin/test
 

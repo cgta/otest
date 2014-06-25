@@ -9,7 +9,7 @@ object ExamplesBuild extends Build {
 
   //  lazy val otestVersion = "0.1.5-SNAPSHOT"
   //ALSO CHANGE IN project/plugins.sbt
-  lazy val otestVersion = "0.1.7-SNAPSHOT"
+  lazy val otestVersion = "0.1.8-SNAPSHOT"
 
   //Be sure to look at the build.sbt files under each subprojects folder as well
   lazy val exampleTests = exampleTestsX.base
