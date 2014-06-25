@@ -6,18 +6,53 @@ import sbt.Keys._
 
 import sbtrelease.{ReleaseStateTransformations, ReleasePlugin, ReleaseStep}
 import scala.annotation.tailrec
-
+import scala.scalajs.sbtplugin.ScalaJSPlugin
+import com.typesafe.sbt.SbtPgp.PgpKeys
 
 
 object Build extends sbt.Build {
 
-//  org.slf4j.LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME).asInstanceOf[(ch.qos.logback.classic.Logger)].setLevel(ch.qos.logback.classic.Level.INFO)
+  //  org.slf4j.LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME).asInstanceOf[(ch.qos.logback.classic.Logger)].setLevel(ch.qos.logback.classic.Level.INFO)
 
 
   object Versions {
 
     //Change in project/scalaJs.sbt as well
     lazy val scalaJs = "0.5.0"
+  }
+
+  object PublishSets {
+    val settings = Seq[Setting[_]](
+      publishTo := {
+        val nexus = "https://oss.sonatype.org/"
+        if (isSnapshot.value)
+          Some("snapshots" at nexus + "content/repositories/snapshots")
+        else
+          Some("releases" at nexus + "service/local/staging/deploy/maven2")
+      },
+      (publishArtifact in Test) := false,
+      pomIncludeRepository := { _ => false},
+      pomExtra :=
+        <url>https://github.com/cgta/otest</url>
+          <licenses>
+            <license>
+              <name>MIT license</name>
+              <url>http://www.opensource.org/licenses/mit-license.php</url>
+            </license>
+          </licenses>
+          <scm>
+            <url>git://github.com/cgta/otest.git</url>
+            <connection>scm:git://github.com/cgta/otest.git</connection>
+          </scm>
+          <developers>
+            <developer>
+              <id>benjaminjackman</id>
+              <name>Benjamin Jackman</name>
+              <url>https://github.com/benjaminjackman</url>
+            </developer>
+          </developers>
+
+    )
   }
 
   object CompilerPlugins {
@@ -33,19 +68,22 @@ object Build extends sbt.Build {
   }
 
   lazy val otestX = SbtXSjsPlugin.xSjsProjects("otest", file("otest"))
+    .settingsAll(organization := "biz.cgta")
+    .settingsAll(publishMavenStyle := true)
     .settingsAll(SbtIdeaPlugin.ideaBasePackage := Some("cgta.otest"))
     .settingsAll(OsCgtaSbtPlugin.basicSettings: _*)
     .settingsAll(libraryDependencies ++= (if (scalaVersion.value.startsWith("2.10.")) Libs.macrosQuasi else Nil))
     .settingsAll(CompilerPlugins.macrosPlugin)
     .settingsAll(libraryDependencies ++= Libs.sbtTestInterface)
     .settingsAll(libraryDependencies += Libs.scalaReflect % scalaVersion.value)
+    .settingsSjs(ScalaJSPlugin.scalaJSSettings: _*)
 
   lazy val otest    = otestX.base
   lazy val otestJvm = otestX.jvm
   lazy val otestSjs = otestX.sjs
 
   lazy val otestSbtPlugin = Project("otest-sbt-plugin", file("./otest-sbt-plugin"))
-    .settingsAll(SbtIdeaPlugin.ideaBasePackage := Some("cgta.otest"))
+    .settings(organization := "biz.cgta")
     .settings(libraryDependencies ++= Libs.sbtTestInterface)
     .settings(libraryDependencies += Libs.scalaReflect % scalaVersion.value)
     .settings(addSbtPlugin("org.scala-lang.modules.scalajs" % "scalajs-sbt-plugin" % Versions.scalaJs % "provided"))
@@ -76,7 +114,7 @@ object Build extends sbt.Build {
         action = runAllTasks(test in Test in otestSbtPlugin)(_))
 
       lazy val publishArtifactsOtest = ReleaseStep(
-        action = runAllTasks(otests.map(publish in Global in _): _*)(_),
+        action = runAllTasks(otests.map(PgpKeys.publishSigned in Global in _): _*)(_),
         check = st => {
           // getPublishTo fails if no publish repository is set up.
           val ex = Project.extract(st)
@@ -87,7 +125,7 @@ object Build extends sbt.Build {
       )
 
       lazy val publishArtifactsPlugin = ReleaseStep(
-        action = runAllTasks(publish in Global in otestSbtPlugin)(_),
+        action = runAllTasks(PgpKeys.publishSigned in Global in otestSbtPlugin)(_),
         check = st => {
           val ex = Project.extract(st)
           Classpaths.getPublishTo(ex.get(publishTo in Global in otestSbtPlugin))
