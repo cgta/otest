@@ -1,2 +1,2 @@
 //CHANGE VERSION IN ExamplesBuild as well!
-addSbtPlugin("biz.cgta" % "otest-sbt-plugin" % "0.1.8-SNAPSHOT")
+addSbtPlugin("biz.cgta" % "otest-sbt-plugin" % "0.1.9-SNAPSHOT")
