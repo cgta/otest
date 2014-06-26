@@ -150,7 +150,7 @@ project](/examples) and this project's [build](/project) If you decide to go dow
 
 Thanks
 ------
-The ScalaJs team [Sebastien Doeraene](https://github.com/sjrd) & [Tobias Schlatter](https://github.com/gzm0) for making it possible to write code in worst language out there (except every other one, of course) while deploying to the web and reaching the largest audience of users in history.
+The ScalaJs team [Sebastien Doeraene](https://github.com/sjrd) & [Tobias Schlatter](https://github.com/gzm0) for making all of this possible.
 
 Thanks to [Li Haoyi](https://github.com/lihaoyi), for making [utest](https://github.com/lihaoyi/utest) as well as [several](https://github.com/lihaoyi/upickle), [other](https://github.com/lihaoyi/scala.rx), [excellent](https://github.com/lihaoyi/scalatags) ScalaJs compatible libraries.
 
