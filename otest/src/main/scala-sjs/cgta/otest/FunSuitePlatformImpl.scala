@@ -12,6 +12,5 @@ import scala.scalajs.js.annotation.JSExportDescendentObjects
 //////////////////////////////////////////////////////////////
 
 
-//Todo change to be a trait if possible
 @JSExportDescendentObjects
 trait FunSuitePlatformImpl
