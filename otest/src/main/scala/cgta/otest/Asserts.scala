@@ -117,7 +117,7 @@ trait AssertsMixin {
 
   def intercepts[T](body: Unit): Unit = macro AssertionMacros.intercepts[T]
 
-  def interceptsWithClue[T](clues: Any*)(body: Unit): Unit = macro AssertionMacros.interceptsWithClues[T]
+  def interceptsWithClues[T](clues: Any*)(body: Unit): Unit = macro AssertionMacros.interceptsWithClues[T]
 }
 
 

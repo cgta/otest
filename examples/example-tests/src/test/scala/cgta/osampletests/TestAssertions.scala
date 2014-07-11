@@ -73,12 +73,12 @@ object TestAssertions extends FunSuite {
     Assert.intercepts[RuntimeException] {throw new SampleException}
   }
   test("intercept exception with clues") {
-    Assert.intercepts[SampleException](1) {throw new SampleException}
-    Assert.intercepts[Exception](1, 2) {throw new SampleException}
-    Assert.intercepts[Throwable](1, 2, "foo") {throw new SampleException}
+    Assert.interceptsWithClues[SampleException](1) {throw new SampleException}
+    Assert.interceptsWithClues[Exception](1, 2) {throw new SampleException}
+    Assert.interceptsWithClues[Throwable](1, 2, "foo") {throw new SampleException}
   }
   bad("intercept exception with clues wrong kind of exception") {
-    Assert.intercepts[RuntimeException](1, 2, "foo") {throw new SampleException}
+    Assert.interceptsWithClues[RuntimeException](1, 2, "foo") {throw new SampleException}
   }
 
 }
