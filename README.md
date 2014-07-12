@@ -1,4 +1,4 @@
-# otest 0.1.9 - Unit Testing for Scala and ScalaJs
+# otest 0.1.10 - Unit Testing for Scala and ScalaJs
 
 Its suites are very similar to FunSuites from ScalaTest and its assertions simply throw `cgta.otest.AssertionFailure` when they fail.
 
@@ -62,9 +62,9 @@ isGt[A](a: A, b: A, clues: Any*)(implicit ordering: Ordering[A])
 isGte[A](a: A, b: A, clues: Any*)(implicit ordering: Ordering[A])
 fail(msg: String = null)
 intercepts[T](body: Unit) 
-intercepts[T](clues: Any*)(body: Unit) 
+interceptsWithClues[T](clues: Any*)(body: Unit) 
 ```
-*Note that the `intercepts[T]` are implemented with macros*
+*Note that the `intercepts[T]` and `interceptsWithClues[t]` are implemented with macros*
 
 A full list of available assertions can be seen [here](/otest/src/main/scala/cgta/otest/Asserts.scala).
 
@@ -97,7 +97,7 @@ Following sbt best practices, each plugin should be put in their own file.
 
 Create a file called `project/otest.sbt` and add the following:
 ```scala
-addSbtPlugin("biz.cgta" % "otest-sbt-plugin" % "0.1.9")
+addSbtPlugin("biz.cgta" % "otest-sbt-plugin" % "0.1.10")
 ```
 
 
@@ -109,7 +109,7 @@ add the following to the `build.sbt`:
 ```scala
 cgta.otest.OtestPlugin.settingsJvm
 
-libraryDependencies += "biz.cgta" %% "otest-jvm" % "0.1.9" % "test"
+libraryDependencies += "biz.cgta" %% "otest-jvm" % "0.1.10" % "test"
 ```
 
 In a ScalaJs project:
@@ -120,7 +120,7 @@ add the following to the `build.sbt`:
 ```scala
 cgta.otest.OtestPlugin.settingsSjs
 
-libraryDependencies += "biz.cgta" %%% "otest-jvm" % "0.1.9" % "test"
+libraryDependencies += "biz.cgta" %%% "otest-jvm" % "0.1.10" % "test"
 ```
 
 *NOTE: The triple '%%%' in the version string here, this is added to sbt by the scalaJs plugin. Whereas %% handles binary incompitabilites between versions of Scalac, %%% goes one step further and ensures compatibility between ScalaJs versions by adding a tag like `_sjs0.5` to the artifact id as well.*
