@@ -51,10 +51,13 @@ class TestResultTracker {
 
   def doneString: String = {
     import Tests._
-    s"Run completed in ${durMs()} milliseconds.\n" +
-      s"Total number of tests run: $total\n" +
-      s"Suites: completed ${Suites.completed}, aborted ${Suites.aborted}\n" +
-      s"Tests: succeeded $passed, failed $failed, errors $errors, ignored $ignored, pending $pending\n"
+    import Suites._
+    //    s"Run completed in ${durMs()} milliseconds.\n" +
+    //      s"Total number of tests run: $total\n" +
+    //      s"Suites: completed ${Suites.completed}, aborted ${Suites.aborted}\n" +
+    //      s"Tests: succeeded $passed, failed $failed, errors $errors, ignored $ignored, pending $pending\n"
+
+    s"Suites: complete:$completed abort:$aborted Tests: ok:$passed, fail:$failed, error:$errors, ignore:$ignored\n"
   }
 
 }
