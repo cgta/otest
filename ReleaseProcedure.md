@@ -21,6 +21,12 @@ sbt release
 #Be sure to enter the pgp key & sbt credentials for sonatype
 #See here for more info: http://www.scala-sbt.org/0.13/docs/Using-Sonatype.html
 
+#goto Sonatype and stage the release
+https://oss.sonatype.org/#stagingRepositories
+select the bizcgta-XXXXX item at the top
+press close
+press release
+
 #Bump version to next SNAPSHOT version:
   examples/project/plugins.sbt
   examples/project/ExampleBuild.scala
