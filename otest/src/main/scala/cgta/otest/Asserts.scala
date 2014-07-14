@@ -111,7 +111,7 @@ trait AssertsMixin {
     }
   }
 
-  def fail(msg: String = null) {
+  def fail(msg: String = null): Nothing = {
     throw AssertionFailure.fail(msg)
   }
 
