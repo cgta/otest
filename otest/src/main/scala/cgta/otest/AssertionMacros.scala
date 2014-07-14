@@ -16,7 +16,7 @@ object AssertionMacros {
   def intercepts[T: c.WeakTypeTag](c: Context)(body: c.Expr[Unit]): c.Expr[Unit] = {
     import c.universe._
     val t = implicitly[c.WeakTypeTag[T]]
-    val tname = t.toString()
+    val tname = t.tpe.toString()
     val res = q"""
       var _cAugHt =false
       try {
@@ -39,7 +39,7 @@ object AssertionMacros {
   def interceptsWithClues[T: c.WeakTypeTag](c: Context)(clues: c.Expr[Any]*)(body: c.Expr[Unit]): c.Expr[Unit] = {
     import c.universe._
     val t = implicitly[c.WeakTypeTag[T]]
-    val tname = t.toString()
+    val tname = t.tpe.toString()
     val res = q"""
       var _cAugHt =false
       try {

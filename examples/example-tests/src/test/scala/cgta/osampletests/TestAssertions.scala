@@ -1,6 +1,6 @@
 package cgta.osampletests
 
-import cgta.otest.FunSuite
+import cgta.otest.{AssertionFailure, FunSuite}
 
 
 //////////////////////////////////////////////////////////////
@@ -12,7 +12,6 @@ import cgta.otest.FunSuite
 //////////////////////////////////////////////////////////////
 
 class SampleException extends Exception
-
 
 
 object TestAssertions extends FunSuite {
@@ -80,5 +79,36 @@ object TestAssertions extends FunSuite {
   bad("intercept exception with clues wrong kind of exception") {
     Assert.interceptsWithClues[RuntimeException](1, 2, "foo") {throw new SampleException}
   }
+  test("intercept failure reasons") {
+    def exTest(msg: String)(f: => Any) {
+      try {
+        f
+        Assert.fail("Expected an AssertionFailure")
+      } catch {
+        case e: AssertionFailure =>
+          Assert.isEquals(
+            msg,
+            e.getMessage)
+        case e: Throwable =>
+          Assert.fail("Expected an AssertionFailure")
+      }
+    }
+    exTest(
+      "Expected to intercept [RuntimeException] but nothing was thrown. Clues []") {
+      Assert.intercepts[RuntimeException]()
+    }
+    exTest(
+      "Expected to intercept [RuntimeException] but caught [class cgta.osampletests.SampleException]. Clues []") {
+      Assert.intercepts[RuntimeException](throw new SampleException)
+    }
+    exTest(
+      "Expected to intercept [RuntimeException] but nothing was thrown. Clues [1,2]") {
+      Assert.interceptsWithClues[RuntimeException](1,2)()
+    }
+    exTest(
+      "Expected to intercept [RuntimeException] but caught [class cgta.osampletests.SampleException]. Clues [1,2]") {
+      Assert.interceptsWithClues[RuntimeException](1,2)(throw new SampleException)
+    }
 
+  }
 }
