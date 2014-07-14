@@ -14,7 +14,7 @@ import scala.collection.mutable.ArrayBuffer
 
 case class TestWrapper(name: String, body: () => Unit, ignored: Boolean = false, bad: Boolean = false)
 
-class FunSuite extends FunSuitePlatformImpl {
+trait FunSuite extends FunSuitePlatformImpl {
   object SuiteImpl {
 
     def simpleName = FunSuite.this.getClass.toString.split("\\.").last
