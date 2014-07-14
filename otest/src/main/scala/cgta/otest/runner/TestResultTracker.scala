@@ -50,14 +50,17 @@ class TestResultTracker {
   def newSuiteTracker(taskDef: TaskDef, eventHandler: EventHandler) = new SuiteTracker(taskDef, eventHandler)
 
   def doneString: String = {
-    import Tests._
-    import Suites._
+//    import Tests._
+//    import Suites._
     //    s"Run completed in ${durMs()} milliseconds.\n" +
     //      s"Total number of tests run: $total\n" +
     //      s"Suites: completed ${Suites.completed}, aborted ${Suites.aborted}\n" +
     //      s"Tests: succeeded $passed, failed $failed, errors $errors, ignored $ignored, pending $pending\n"
 
-    s"Suites: complete:$completed abort:$aborted Tests: ok:$passed, fail:$failed, error:$errors, ignore:$ignored\n"
+//    s"Suites: complete:$completed abort:$aborted Tests: ok:$passed, fail:$failed, error:$errors, ignore:$ignored\n"
+
+    //Anything else gets to be too spammy for test-quick, and sbt provides it's own summary
+    ""
   }
 
 }
