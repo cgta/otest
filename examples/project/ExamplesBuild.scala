@@ -5,7 +5,7 @@ import cgta.sbtxsjs.SbtXSjsPlugin
 object ExamplesBuild extends Build {
 
   //ALSO CHANGE IN project/plugins.sbt
-  lazy val otestVersion = "0.1.12-SNAPSHOT"
+  lazy val otestVersion = "0.1.13-SNAPSHOT"
 
 
   import scala.scalajs.sbtplugin.ScalaJSPlugin._
