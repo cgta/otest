@@ -120,7 +120,7 @@ add the following to the `build.sbt`:
 ```scala
 cgta.otest.OtestPlugin.settingsSjs
 
-libraryDependencies += "biz.cgta" %%% "otest-jvm" % "0.1.12" % "test"
+libraryDependencies += "biz.cgta" %%% "otest-sjs" % "0.1.12" % "test"
 ```
 
 *NOTE: The triple '%%%' in the version string here, this is added to sbt by the scalaJs plugin. Whereas %% handles binary incompitabilites between versions of Scalac, %%% goes one step further and ensures compatibility between ScalaJs versions by adding a tag like `_sjs0.5` to the artifact id as well.*
