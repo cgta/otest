@@ -18,7 +18,7 @@ object Build extends sbt.Build {
   object Versions {
 
     //Change in project/scalaJs.sbt as well
-    lazy val scalaJs = "0.5.0"
+    lazy val scalaJs = "0.5.4"
   }
 
   object PublishSets {
