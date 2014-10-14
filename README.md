@@ -1,4 +1,4 @@
-# otest 0.1.12 - Unit Testing for Scala and ScalaJs
+# otest 0.1.13 - Unit Testing for Scala and ScalaJs
 
 Its suites are very similar to FunSuites from ScalaTest and its assertions simply throw `cgta.otest.AssertionFailure` when they fail.
 
@@ -97,7 +97,7 @@ Following sbt best practices, each plugin should be put in their own file.
 
 Create a file called `project/otest.sbt` and add the following:
 ```scala
-addSbtPlugin("biz.cgta" % "otest-sbt-plugin" % "0.1.12")
+addSbtPlugin("biz.cgta" % "otest-sbt-plugin" % "0.1.13")
 ```
 
 
@@ -109,7 +109,7 @@ add the following to the `build.sbt`:
 ```scala
 cgta.otest.OtestPlugin.settingsJvm
 
-libraryDependencies += "biz.cgta" %% "otest-jvm" % "0.1.12" % "test"
+libraryDependencies += "biz.cgta" %% "otest-jvm" % "0.1.13" % "test"
 ```
 
 In a ScalaJs project:
@@ -120,7 +120,7 @@ add the following to the `build.sbt`:
 ```scala
 cgta.otest.OtestPlugin.settingsSjs
 
-libraryDependencies += "biz.cgta" %%% "otest-sjs" % "0.1.12" % "test"
+libraryDependencies += "biz.cgta" %%% "otest-sjs" % "0.1.13" % "test"
 ```
 
 *NOTE: The triple '%%%' in the version string here, this is added to sbt by the scalaJs plugin. Whereas %% handles binary incompitabilites between versions of Scalac, %%% goes one step further and ensures compatibility between ScalaJs versions by adding a tag like `_sjs0.5` to the artifact id as well.*
