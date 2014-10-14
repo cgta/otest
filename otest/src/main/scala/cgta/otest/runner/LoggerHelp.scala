@@ -46,9 +46,9 @@ object LoggerHelp {
 
   def logResults(name: String, loggers: Array[Logger], results: Seq[TestResult]) {
     loggers.map(ColorLogger).foreach { logger =>
-      logger.green(name + ":")
+      logger.green(name + s": [${results.map(_.duration()).sum}ms]")
       results.foreach {
-        case r: TestResults.Passed => logger.green(s"- ${r.name}")
+        case r: TestResults.Passed => logger.green(s"[${r.duration}ms] - ${r.name}")
         case r: TestResults.Ignored =>
           logger.yellow(s"- ${r.name} !!! IGNORED !!!")
         case r: TestResults.Failed =>
