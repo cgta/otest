@@ -13,50 +13,52 @@ import scala.reflect.macros.Context
 import scala.language.experimental.macros
 
 object AssertionMacros {
-  def intercepts[T: c.WeakTypeTag](c: Context)(body: c.Expr[Unit]): c.Expr[Unit] = {
+  def intercepts[T: c.WeakTypeTag](c: Context)(body: c.Expr[Unit]): c.Expr[T] = {
     import c.universe._
     val t = implicitly[c.WeakTypeTag[T]]
     val tname = t.tpe.toString()
     val res = q"""
-      var _cAugHt =false
+      var _cAugHt : scala.Option[$t] = scala.None
       try {
         try{
           $body
         } catch {
-          case e: $t=>_cAugHt =true
+          case e: $t=> _cAugHt = scala.Some(e)
         }
       } catch {
         case t: Throwable if cgta.otest.CatchableThrowable(t) =>
           throw cgta.otest.AssertionFailure.intercept($tname, Some(t))
       }
-      if(!_cAugHt){
-        throw cgta.otest.AssertionFailure.intercept($tname, None)
+      _cAugHt match {
+        case scala.Some(e) => e
+        case scala.None => throw cgta.otest.AssertionFailure.intercept($tname, None)
       }
       """
-    c.Expr[Unit](res)
+    c.Expr[T](res)
   }
 
-  def interceptsWithClues[T: c.WeakTypeTag](c: Context)(clues: c.Expr[Any]*)(body: c.Expr[Unit]): c.Expr[Unit] = {
+  def interceptsWithClues[T: c.WeakTypeTag](c: Context)(clues: c.Expr[Any]*)(body: c.Expr[Unit]): c.Expr[T] = {
     import c.universe._
     val t = implicitly[c.WeakTypeTag[T]]
     val tname = t.tpe.toString()
     val res = q"""
-      var _cAugHt =false
+      var _cAugHt : scala.Option[$t] = scala.None
       try {
         try {
           $body
         } catch {
-          case e: $t=>_cAugHt =true
+          case e: $t=> _cAugHt = scala.Some(e)
         }
       } catch {
         case t: Throwable if cgta.otest.CatchableThrowable(t) =>
           throw cgta.otest.AssertionFailure.intercept($tname, Some(t), ..$clues)
       }
-      if(!_cAugHt){
-        throw cgta.otest.AssertionFailure.intercept($tname, None, ..$clues)
+      _cAugHt match {
+        case scala.Some(e) => e
+        case scala.None => throw cgta.otest.AssertionFailure.intercept($tname, None, ..$clues)
       }
       """
-    c.Expr[Unit](res)
+    c.Expr[T](res)
   }
 
 

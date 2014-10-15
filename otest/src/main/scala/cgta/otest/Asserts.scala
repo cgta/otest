@@ -115,9 +115,9 @@ trait AssertsMixin {
     throw AssertionFailure.fail(msg)
   }
 
-  def intercepts[T](body: Unit): Unit = macro AssertionMacros.intercepts[T]
+  def intercepts[T](body: Unit): T = macro AssertionMacros.intercepts[T]
 
-  def interceptsWithClues[T](clues: Any*)(body: Unit): Unit = macro AssertionMacros.interceptsWithClues[T]
+  def interceptsWithClues[T](clues: Any*)(body: Unit): T = macro AssertionMacros.interceptsWithClues[T]
 }
 
 

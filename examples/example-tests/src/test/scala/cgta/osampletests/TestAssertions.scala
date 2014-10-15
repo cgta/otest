@@ -79,6 +79,11 @@ object TestAssertions extends FunSuite {
   bad("intercept exception with clues wrong kind of exception") {
     Assert.interceptsWithClues[RuntimeException](1, 2, "foo") {throw new SampleException}
   }
+  test("intercept returns what was thrown") {
+    val x = new SampleException
+    val y = Assert.intercepts[SampleException]{throw x}
+    Assert.isEquals(x,y)
+  }
   test("intercept failure reasons") {
     def exTest(msg: String)(f: => Any) {
       try {
