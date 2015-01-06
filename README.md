@@ -1,10 +1,10 @@
-# otest 0.1.14 - Unit Testing for Scala and ScalaJs
+# otest 0.2.0-M3 - Unit Testing for Scala and ScalaJs
 
 Its suites are very similar to FunSuites from ScalaTest and its assertions simply throw `cgta.otest.AssertionFailure` when they fail.
 
 It was inspired by [utest](https://github.com/lihaoyi/utest), but designed to fit into our legacy codebase, with minimal refactoring.
 
-It currently is built targeting `Scala 2.10` & `Scala 2.11` as well as  `ScalaJs 0.5.0`
+It currently is built targeting `Scala 2.10` & `Scala 2.11` as well as  `ScalaJs 0.6.0-M3`
 
 Motivation
 ==========
@@ -88,28 +88,15 @@ otest runs in sbt, it doesn't have support for maven or any other build systems 
 
 It is is released in two versions, a -jvm version for projects targeting the Jvm and an -sjs version for ScalaJs projects targeting javascript.
 
-Add the sbt plugin for otest:
------------------------------
-
-otest has to register it's test runner with sbt. to do that you will have to add an sbt plugin to your project.
- 
-Following sbt best practices, each plugin should be put in their own file.
-
-Create a file called `project/otest.sbt` and add the following:
-```scala
-addSbtPlugin("biz.cgta" % "otest-sbt-plugin" % "0.1.14")
-```
-
-
 In a ScalaJvm project:
 ----------------------
 
 add the following to the `build.sbt`:
 
 ```scala
-cgta.otest.OtestPlugin.settingsJvm
+libraryDependencies += "biz.cgta" %% "otest-jvm" % 0.2.0-M3 % "test",
 
-libraryDependencies += "biz.cgta" %% "otest-jvm" % "0.1.14" % "test"
+testFrameworks := Seq(new TestFramework("cgta.otest.runner.OtestSbtFramework"))
 ```
 
 In a ScalaJs project:
@@ -118,12 +105,15 @@ In a ScalaJs project:
 add the following to the `build.sbt`:
 
 ```scala
-cgta.otest.OtestPlugin.settingsSjs
+libraryDependencies += "biz.cgta" %%%! "otest-sjs" % "0.2.0-M3" % "test"
 
-libraryDependencies += "biz.cgta" %%% "otest-sjs" % "0.1.14" % "test"
+testFrameworks := Seq(new TestFramework("cgta.otest.runner.OtestSbtFramework"))
+
+//Optional if you want to use Node / PhantomJs runners
+scalaJSStage in Test := FastOptStage
 ```
 
-*NOTE: The triple '%%%' in the version string here, this is added to sbt by the scalaJs plugin. Whereas %% handles binary incompitabilites between versions of Scalac, %%% goes one step further and ensures compatibility between ScalaJs versions by adding a tag like `_sjs0.5` to the artifact id as well.*
+*NOTE: The triple '%%%!' in the version string here, this is added to sbt by the scalaJs plugin. Whereas %% handles binary incompitabilites between versions of Scalac, %%% goes one step further and ensures compatibility between ScalaJs versions by adding a tag like `_sjs0.5` to the artifact id as well.*
 
 Building otest
 ==============
