@@ -8,13 +8,15 @@ package cgta.otest
 // for licensing inquiries
 // Created by bjackman @ 5/23/14 1:27 PM
 //////////////////////////////////////////////////////////////
-
 import scala.language.experimental.macros
 import scala.collection.mutable.ArrayBuffer
+import scala.scalajs.js.annotation.JSExportDescendentObjects
+
 
 case class TestWrapper(name: String, body: () => Unit, ignored: Boolean = false, bad: Boolean = false)
 
-trait FunSuite extends FunSuitePlatformImpl {
+@JSExportDescendentObjects
+trait FunSuite  {
   object SuiteImpl {
 
     def simpleName = FunSuite.this.getClass.toString.split("\\.").last

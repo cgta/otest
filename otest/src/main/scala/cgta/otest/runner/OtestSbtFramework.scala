@@ -12,14 +12,21 @@ import sbt.testing.{Fingerprint, Runner}
 // Created by bjackman @ 5/28/14 4:33 PM
 //////////////////////////////////////////////////////////////
 
-class OtestSbtFrameworkJvm extends sbt.testing.Framework {
+class OtestSbtFramework extends sbt.testing.Framework {
   override def name(): String = "otest-jvm"
   override def fingerprints(): Array[Fingerprint] = FrameworkHelp.fingerprints()
 
   override def runner(args: Array[String],
     remoteArgs: Array[String],
     testClassLoader: ClassLoader): Runner = {
-    new OtestRunnerJvm(args, remoteArgs, testClassLoader)
+    new OtestRunner(args, remoteArgs, testClassLoader)
+  }
+
+  def slaveRunner(args: Array[String],
+    remoteArgs: Array[String],
+    testClassLoader: ClassLoader,
+    send: String => Unit): Runner = {
+    runner(args, remoteArgs, testClassLoader)
   }
 
 }

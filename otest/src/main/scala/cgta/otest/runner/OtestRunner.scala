@@ -12,7 +12,7 @@ import sbt.testing.{TaskDef, Task}
 // Created by bjackman @ 5/28/14 4:37 PM
 //////////////////////////////////////////////////////////////
 
-class OtestRunnerJvm(
+class OtestRunner(
   override val args: Array[String],
   override val remoteArgs: Array[String],
   val testClassLoader: ClassLoader) extends sbt.testing.Runner {
@@ -24,7 +24,19 @@ class OtestRunnerJvm(
   }
 
   override def tasks(taskDefs: Array[TaskDef]): Array[Task] = {
-    taskDefs.map { taskDef => new OtestTaskJvm(taskDef, tracker, testClassLoader): Task}
+    taskDefs.map { taskDef => new OtestTask(taskDef, tracker, testClassLoader): Task}
   }
+
+  def receiveMessage(msg: String): Option[String] = {
+    None
+  }
+  def serializeTask(task: sbt.testing.Task, serializer: sbt.testing.TaskDef => String): String = {
+    serializer(task.taskDef())
+  }
+  def deserializeTask(task: String, deserializer: String => sbt.testing.TaskDef): sbt.testing.Task = {
+    new OtestTask(deserializer(task), tracker, testClassLoader)
+  }
+
+
 }
 

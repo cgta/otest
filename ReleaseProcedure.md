@@ -5,6 +5,8 @@
 gru
 
 #Commit and push up changes
+gg
+gpoh
 
 #Run Tests
 bin/test

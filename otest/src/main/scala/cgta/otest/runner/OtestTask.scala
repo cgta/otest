@@ -3,6 +3,7 @@ package runner
 
 import sbt.testing.{Task, SubclassFingerprint, TaskDef, Logger, EventHandler}
 import cgta.otest.runner.TestResults.{FailedFatalException, Ignored, FailedBad, Passed, FailedAssertion, FailedUnexpectedException}
+import org.scalajs.testinterface.TestUtils
 
 
 //////////////////////////////////////////////////////////////
@@ -13,12 +14,16 @@ import cgta.otest.runner.TestResults.{FailedFatalException, Ignored, FailedBad, 
 // Created by bjackman @ 5/28/14 12:00 PM
 //////////////////////////////////////////////////////////////
 
-class OtestTaskJvm(
+class OtestTask(
   val taskDef: TaskDef,
   tracker: TestResultTracker,
   testClassLoader: ClassLoader) extends sbt.testing.Task {
 
   override def tags(): Array[String] = Array()
+
+  def execute(eventHandler: EventHandler, loggers: Array[Logger], continuation: (Array[Task]) => Unit): Unit = {
+    continuation(execute(eventHandler, loggers))
+  }
 
   override def execute(eventHandler: EventHandler, loggers: Array[Logger]): Array[Task] = {
     tracker.begin()
@@ -26,8 +31,12 @@ class OtestTaskJvm(
     taskDef.fingerprint() match {
       case fingerprint: SubclassFingerprint if fingerprint.superclassName() == FrameworkHelp.funSuiteName =>
         if (fingerprint.isModule) {
-          val cls = Class.forName(name + "$")
-          runSuite(eventHandler, cls.getField("MODULE$").get(cls).asInstanceOf[FunSuite], loggers)(taskDef)
+          TestUtils.loadModule(name, testClassLoader) match {
+            case m : FunSuite =>
+              runSuite(eventHandler, m, loggers)(taskDef)
+            case x =>
+              sys.error(s"Cannot test $taskDef of type: $x")
+          }
         } else {
           sys.error("FunSuite only works on objects, classes don't work.")
         }

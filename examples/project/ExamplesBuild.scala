@@ -4,19 +4,23 @@ import cgta.sbtxsjs.SbtXSjsPlugin
 
 object ExamplesBuild extends Build {
 
-  //ALSO CHANGE IN project/plugins.sbt
-  lazy val otestVersion = "0.1.15-SNAPSHOT"
+  lazy val otestVersion = "0.2.0-M3-SNAPSHOT"
 
+  import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
 
-  import scala.scalajs.sbtplugin.ScalaJSPlugin._
+  lazy val exampleTestsX = SbtXSjsPlugin.XSjsProjects("example-tests", file("example-tests"))
+    .settingsBase(
+      libraryDependencies += "biz.cgta" %% "otest-jvm" % otestVersion % "test")
+    .settingsJvm(
+      libraryDependencies += "biz.cgta" %% "otest-jvm" % otestVersion % "test",
+      testFrameworks := Seq(new TestFramework("cgta.otest.runner.OtestSbtFramework")))
+    .settingsSjs(
+      libraryDependencies += "biz.cgta" %%%! "otest-sjs" % otestVersion % "test",
+      testFrameworks := Seq(new TestFramework("cgta.otest.runner.OtestSbtFramework")),
+      scalaJSStage in Test := FastOptStage
+    )
+    .mapSjs(_.enablePlugins(org.scalajs.sbtplugin.ScalaJSPlugin))
 
-  lazy val exampleTestsX = SbtXSjsPlugin.xSjsProjects("example-tests", file("example-tests"))
-    .settingsBase(libraryDependencies += "biz.cgta" %% "otest-jvm" % otestVersion % "test")
-    .settingsJvm(libraryDependencies += "biz.cgta" %% "otest-jvm" % otestVersion % "test")
-    .settingsJvm(cgta.otest.OtestPlugin.settingsJvm: _*)
-    .settingsSjs(libraryDependencies += "biz.cgta" %%% "otest-sjs" % otestVersion % "test")
-    .settingsSjs(scala.scalajs.sbtplugin.ScalaJSPlugin.scalaJSSettings: _*)
-    .settingsSjs(cgta.otest.OtestPlugin.settingsSjs: _*)
 
   lazy val exampleTests = exampleTestsX.base
   lazy val exampleTestsJvm = exampleTestsX.jvm

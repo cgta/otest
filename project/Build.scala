@@ -6,20 +6,19 @@ import sbt.Keys._
 
 import sbtrelease.{ReleaseStateTransformations, ReleasePlugin, ReleaseStep}
 import scala.annotation.tailrec
-import scala.scalajs.sbtplugin.ScalaJSPlugin
+
 import com.typesafe.sbt.SbtPgp.PgpKeys
+import org.scalajs.sbtplugin.ScalaJSPlugin
 
 
 object Build extends sbt.Build {
 
   //  org.slf4j.LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME).asInstanceOf[(ch.qos.logback.classic.Logger)].setLevel(ch.qos.logback.classic.Level.INFO)
-
-
   object Versions {
-
-    //Change in project/scalaJs.sbt as well
-    lazy val scalaJs = "0.5.4"
+    //Change in plugins too!!
+    val scalaJSVersion = "0.6.0-M3"
   }
+
 
   object PublishSets {
     val settings = Seq[Setting[_]](
@@ -60,14 +59,12 @@ object Build extends sbt.Build {
   }
 
   object Libs {
-    lazy val macrosQuasi      = Seq("org.scalamacros" %% "quasiquotes" % "2.0.0")
-    lazy val sbtTestInterface = Seq("org.scala-sbt" % "test-interface" % "1.0")
-    lazy val scalaJsTools     = Seq("org.scala-lang.modules.scalajs" %% "scalajs-tools" % Versions.scalaJs)
+    lazy val macrosQuasi = Seq("org.scalamacros" %% "quasiquotes" % "2.0.0")
     //    lazy val scalaJsPlugin     = Seq("org.scala-lang.modules.scalajs" %% "scalajs-plugin" % Versions.scalaJs)
     val scalaReflect = "org.scala-lang" % "scala-reflect"
   }
 
-  lazy val otestX = SbtXSjsPlugin.xSjsProjects("otest", file("otest"))
+  lazy val (otestX, otest, otestJvm, otestSjs, otestJvmTest, otestSjsTest) = SbtXSjsPlugin.XSjsProjects("otest", file("otest"))
     .settingsAll(organization := "biz.cgta")
     .settingsAll(PublishSets.settings: _*)
     .settingsAll(publishMavenStyle := true)
@@ -75,24 +72,20 @@ object Build extends sbt.Build {
     .settingsAll(OsCgtaSbtPlugin.basicSettings: _*)
     .settingsAll(libraryDependencies ++= (if (scalaVersion.value.startsWith("2.10.")) Libs.macrosQuasi else Nil))
     .settingsAll(CompilerPlugins.macrosPlugin)
-    .settingsAll(libraryDependencies ++= Libs.sbtTestInterface)
     .settingsAll(libraryDependencies += Libs.scalaReflect % scalaVersion.value)
-    .settingsSjs(ScalaJSPlugin.scalaJSSettings: _*)
-
-  lazy val otest    = otestX.base
-  lazy val otestJvm = otestX.jvm
-  lazy val otestSjs = otestX.sjs
-
-  lazy val otestSbtPlugin = Project("otest-sbt-plugin", file("./otest-sbt-plugin"))
-    .settings(organization := "biz.cgta")
-    .settings(PublishSets.settings: _*)
-    .settings(libraryDependencies ++= Libs.sbtTestInterface)
-    .settings(libraryDependencies += Libs.scalaReflect % scalaVersion.value)
-    .settings(addSbtPlugin("org.scala-lang.modules.scalajs" % "scalajs-sbt-plugin" % Versions.scalaJs % "provided"))
-    .settings(sbtPlugin := true)
-    .dependsOn(otestJvm)
+    .settingsJvm(
+      libraryDependencies += "org.scala-sbt" % "test-interface" % "1.0",
+      libraryDependencies += "org.scala-js" %% "scalajs-stubs" % Versions.scalaJSVersion % "provided"
+    )
+    .mapSjs(_.enablePlugins(ScalaJSPlugin))
+    .settingsSjs(
+      libraryDependencies += "org.scala-js" %% "scalajs-test-interface" % Versions.scalaJSVersion,
+      testFrameworks := Seq(new TestFramework("otest.runner.Framework"))
+    )
+    .tupledWithTests
 
   object ReleaseProcess {
+
     object CgtaSteps {
       def runAllTasks[A](tasks: TaskKey[A]*)(st0: State): State = {
         @tailrec
@@ -112,9 +105,6 @@ object Build extends sbt.Build {
         enableCrossBuild = true
       )
 
-      lazy val runTestPlugin = ReleaseStep(
-        action = runAllTasks(test in Test in otestSbtPlugin)(_))
-
       lazy val publishArtifactsOtest = ReleaseStep(
         action = runAllTasks(otests.map(PgpKeys.publishSigned in Global in _): _*)(_),
         check = st => {
@@ -126,14 +116,6 @@ object Build extends sbt.Build {
         enableCrossBuild = true
       )
 
-      lazy val publishArtifactsPlugin = ReleaseStep(
-        action = runAllTasks(PgpKeys.publishSigned in Global in otestSbtPlugin)(_),
-        check = st => {
-          val ex = Project.extract(st)
-          Classpaths.getPublishTo(ex.get(publishTo in Global in otestSbtPlugin))
-          st
-        }
-      )
     }
 
     lazy val settings = Seq[Setting[_]](
@@ -144,12 +126,10 @@ object Build extends sbt.Build {
           inquireVersions,
           runClean,
           CgtaSteps.runTestOtest,
-          CgtaSteps.runTestPlugin,
           setReleaseVersion,
           commitReleaseVersion,
           tagRelease,
           CgtaSteps.publishArtifactsOtest,
-          CgtaSteps.publishArtifactsPlugin,
           setNextVersion,
           commitNextVersion,
           pushChanges
@@ -160,7 +140,7 @@ object Build extends sbt.Build {
 
 
   lazy val root = Project("root", file("."))
-    .aggregate(otestJvm, otestSjs, otestSbtPlugin)
+    .aggregate(otestJvm, otestSjs)
     .settings(crossScalaVersions := Seq("2.10.2", "2.11.1"))
     .settings(OsCgtaSbtPlugin.basicSettings: _*)
     .settings(sbtrelease.ReleasePlugin.releaseSettings: _*)
