@@ -46,7 +46,7 @@ object TestBinaryHelp extends FunSuite {
 
 ```
 
-Here is a summary of the avaible assertions:
+Here is a summary of the available assertions:
 --------------------------------------------
 ```scala
 isTrue(actual: Boolean, clues: Any*)
