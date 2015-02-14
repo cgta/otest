@@ -4,7 +4,7 @@ import cgta.sbtxsjs.SbtXSjsPlugin
 
 object ExamplesBuild extends Build {
 
-  lazy val otestVersion = "0.2.0-M3-SNAPSHOT"
+  lazy val otestVersion = "0.2.1-SNAPSHOT"
 
   import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
 
