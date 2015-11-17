@@ -13,7 +13,7 @@ import scala.collection.mutable.ArrayBuffer
 import scala.scalajs.js.annotation.JSExportDescendentObjects
 
 
-case class TestWrapper(name: String, body: () => Unit, ignored: Boolean = false, bad: Boolean = false)
+case class TestWrapper(name: String, body: () => Unit, ignored: Boolean = false, bad: Boolean = false, only: Boolean = false)
 
 @JSExportDescendentObjects
 trait FunSuite  {
@@ -50,6 +50,12 @@ trait FunSuite  {
   //  def after(body: => Unit)
 
   //  def cleanup(body: => Unit)
+
+  //Only runs this one test
+  //If multiple of these are defined then they will all be run
+  def testOnly(name: String)(body : => Unit) {
+    SuiteImpl.registerTest(TestWrapper(name, () => body, only = true))
+  }
 
   def test(name: String)(body: => Unit) {
     SuiteImpl.registerTest(TestWrapper(name, () => body))

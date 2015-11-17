@@ -32,7 +32,7 @@ class OtestTask(
       case fingerprint: SubclassFingerprint if fingerprint.superclassName() == FrameworkHelp.funSuiteName =>
         if (fingerprint.isModule) {
           TestUtils.loadModule(name, testClassLoader) match {
-            case m : FunSuite =>
+            case m: FunSuite =>
               runSuite(eventHandler, m, loggers)(taskDef)
             case x =>
               sys.error(s"Cannot test $taskDef of type: $x")
@@ -48,20 +48,24 @@ class OtestTask(
   def runSuite(eventHandler: EventHandler, s: FunSuite, loggers: Array[Logger])(implicit taskDef: TaskDef) {
     val st = tracker.newSuiteTracker(taskDef, eventHandler)
     try {
+      val hasOnly = s.SuiteImpl.tests.exists(_.only)
       for (test <- s.SuiteImpl.tests) {
-        runTest(test, st)
+        runTest(test, st, hasOnly)
       }
       tracker.Suites.completed += 1
     } finally {
       st.logResults(s.SuiteImpl.simpleName, loggers)
     }
+
   }
 
-  def runTest(test: TestWrapper, st: TestResultTracker#SuiteTracker)(implicit taskDef: TaskDef) = {
+  def runTest(test: TestWrapper, st: TestResultTracker#SuiteTracker, hasOnly: Boolean)(implicit taskDef: TaskDef) = {
     val startUtcMs = System.currentTimeMillis()
     def durMs = System.currentTimeMillis() - startUtcMs
-    if (test.ignored) {
-      st.addResult(Ignored(test.name))
+    if (hasOnly && !test.only) {
+      st.addResult(Ignored(test.name, becauseOnly = true))
+    } else if (test.ignored) {
+      st.addResult(Ignored(test.name, becauseOnly = false))
     } else {
       try {
         test.body()

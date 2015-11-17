@@ -37,6 +37,10 @@ trait AssertsMixin {
     if (!actual) throw AssertionFailure.basic("true", actual, "but got", clues: _*)
   }
 
+  def isFalse(actual: Boolean, clues: Any*) {
+    if (actual) throw AssertionFailure.basic("false", actual, "but got", clues: _*)
+  }
+
   def isEquals[A, B](expected: A, actual: B, clues: Any*)(implicit ev: CanAssertEq[A, B]) {
     if (expected == actual) {
     } else {

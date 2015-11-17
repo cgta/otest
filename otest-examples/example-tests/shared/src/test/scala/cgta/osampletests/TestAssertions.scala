@@ -1,5 +1,6 @@
 package cgta.osampletests
 
+import cgta.otest.Asserts
 import cgta.otest.{AssertionFailure, FunSuite}
 
 
@@ -16,10 +17,22 @@ class SampleException extends Exception
 
 object TestAssertions extends FunSuite {
   case class Foo()
+
+//  testOnly("Local Assert") {
+//    Assert.fail("should not be run")
+//  }
+//
+//  testOnly("Global Asserts") {
+//    Asserts.fail("should not be run")
+//  }
+//
+//
   ignore("This test is ignored on purpose") {Assert.fail("should not be run")}
 
-  test("assert passes on true input") {Assert.isTrue(true)}
-  bad("assert fails on false input") {Assert.isTrue(false)}
+  test("assert true passes on true input") {Assert.isTrue(true)}
+  test("assert false passes on false input") {Assert.isFalse(false)}
+  bad("assert true fails on false input") {Assert.isTrue(false)}
+  bad("assert false fails on true input") {Assert.isFalse(true)}
 
   test("assertEquals 1 == 1") {Assert.isEquals(1, 1)}
   test("assertEquals Some(1) == Option(1)") {Assert.isEquals(Some(1), Option(1))}
@@ -100,7 +113,7 @@ object TestAssertions extends FunSuite {
     }
     exTest(
       "Expected to intercept [RuntimeException] but nothing was thrown. Clues []") {
-      Assert.intercepts[RuntimeException]()
+      Assert.intercepts[RuntimeException]{}
     }
     exTest(
       "Expected to intercept [RuntimeException] but caught [class cgta.osampletests.SampleException]. Clues []") {
@@ -108,7 +121,7 @@ object TestAssertions extends FunSuite {
     }
     exTest(
       "Expected to intercept [RuntimeException] but nothing was thrown. Clues [1,2]") {
-      Assert.interceptsWithClues[RuntimeException](1,2)()
+      Assert.interceptsWithClues[RuntimeException](1,2){}
     }
     exTest(
       "Expected to intercept [RuntimeException] but caught [class cgta.osampletests.SampleException]. Clues [1,2]") {

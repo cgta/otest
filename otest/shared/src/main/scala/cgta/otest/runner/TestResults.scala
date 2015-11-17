@@ -22,6 +22,7 @@ sealed trait TestResult extends sbt.testing.Event {
   def isFailed: Boolean = false
   def isAborted: Boolean = false
   def isIgnored: Boolean = false
+  def isIgnoredOnly: Boolean = false
 }
 
 object TestResults {
@@ -30,9 +31,10 @@ object TestResults {
     override def throwable(): OptionalThrowable = new OptionalThrowable()
     override def status(): Status = Status.Success
   }
-  case class Ignored(name: String)(implicit val taskDef: TaskDef) extends TestResult {
+  case class Ignored(name: String, becauseOnly : Boolean)(implicit val taskDef: TaskDef) extends TestResult {
     val duration = 0L
     override val isIgnored = true
+    override val isIgnoredOnly = becauseOnly
     override def throwable(): OptionalThrowable = new OptionalThrowable()
     override def status(): Status = Status.Ignored
   }

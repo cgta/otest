@@ -1,22 +1,26 @@
-import cgta.osbt.OsCgtaSbtPlugin
-import cgta.sbtxsjs.SbtXSjsPlugin
-import org.sbtidea.SbtIdeaPlugin
 import sbt._
 import sbt.Keys._
 
 import sbtrelease.{ReleaseStateTransformations, ReleasePlugin, ReleaseStep}
 import scala.annotation.tailrec
 
-import com.typesafe.sbt.SbtPgp.PgpKeys
+import com.typesafe.sbt.pgp.PgpKeys
+import com.typesafe.sbt.pgp.PgpKeys._
+
 import org.scalajs.sbtplugin.ScalaJSPlugin
+import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
+import org.scalajs.sbtplugin.cross.CrossProject
+
 
 
 object Build extends sbt.Build {
 
-  //  org.slf4j.LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME).asInstanceOf[(ch.qos.logback.classic.Logger)].setLevel(ch.qos.logback.classic.Level.INFO)
+  import BaseBuild._
+
+//  //  org.slf4j.LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME).asInstanceOf[(ch.qos.logback.classic.Logger)].setLevel(ch.qos.logback.classic.Level.INFO)
   object Versions {
     //Change in plugins too!!
-    val scalaJSVersion = "0.6.0"
+    val scalaJSVersion = "0.6.5"
   }
 
 
@@ -53,36 +57,68 @@ object Build extends sbt.Build {
 
     )
   }
-
-  object CompilerPlugins {
-    lazy val macrosPlugin = addCompilerPlugin("org.scalamacros" %% "paradise" % "2.0.0" cross CrossVersion.full)
-  }
+//
+//  object CompilerPlugins {
+//    lazy val macrosPlugin = addCompilerPlugin("org.scalamacros" %% "paradise" % "2.1.0-M5" cross CrossVersion.full)
+//  }
 
   object Libs {
-    lazy val macrosQuasi = Seq("org.scalamacros" %% "quasiquotes" % "2.0.0")
     //    lazy val scalaJsPlugin     = Seq("org.scala-lang.modules.scalajs" %% "scalajs-plugin" % Versions.scalaJs)
     val scalaReflect = "org.scala-lang" % "scala-reflect"
   }
 
-  lazy val (otestX, otest, otestJvm, otestSjs, otestJvmTest, otestSjsTest) = SbtXSjsPlugin.XSjsProjects("otest", file("otest"))
-    .settingsAll(organization := "biz.cgta")
-    .settingsAll(PublishSets.settings: _*)
-    .settingsAll(publishMavenStyle := true)
-    .settingsAll(SbtIdeaPlugin.ideaBasePackage := Some("cgta.otest"))
-    .settingsAll(OsCgtaSbtPlugin.basicSettings: _*)
-    .settingsAll(libraryDependencies ++= (if (scalaVersion.value.startsWith("2.10.")) Libs.macrosQuasi else Nil))
-    .settingsAll(CompilerPlugins.macrosPlugin)
-    .settingsAll(libraryDependencies += Libs.scalaReflect % scalaVersion.value)
-    .settingsJvm(
+
+//  lazy val oscala = crossProject.in(file("oscala")).configure(xp("oscala", _))
+//    .jsSettings(Libs.dom.settings: _*)
+//    .jsConfigure(_.copy(id = "oscalaSJS"))
+//    .settings(sbtide.Keys.ideBasePackages :=  List("cgta.oscala"))
+//    .jvmSettings(Assembly.settings: _*)
+//
+//  lazy val oscalaJVM = oscala.jvm
+//  lazy val oscalaSJS = oscala.js
+//
+//
+
+//  lazy val (otestX, otest, otestJvm, otestSjs, otestJvmTest, otestSjsTest) = SbtXSjsPlugin.XSjsProjects("otest", file("otest"))
+//    .settingsAll(organization := "biz.cgta")
+//    .settingsAll(PublishSets.settings: _*)
+//    .settingsAll(publishMavenStyle := true)
+//    .settingsAll(SbtIdeaPlugin.ideaBasePackage := Some("cgta.otest"))
+//    .settingsAll(OsCgtaSbtPlugin.basicSettings: _*)
+//    .settingsAll(libraryDependencies ++= (if (scalaVersion.value.startsWith("2.10.")) Libs.macrosQuasi else Nil))
+//    .settingsAll(CompilerPlugins.macrosPlugin)
+//    .settingsAll(libraryDependencies += Libs.scalaReflect % scalaVersion.value)
+//    .settingsJvm(
+//      libraryDependencies += "org.scala-sbt" % "test-interface" % "1.0",
+//      libraryDependencies += "org.scala-js" %% "scalajs-stubs" % Versions.scalaJSVersion % "provided"
+//    )
+//    .mapSjs(_.enablePlugins(ScalaJSPlugin))
+//    .settingsSjs(
+//      libraryDependencies += "org.scala-js" %% "scalajs-test-interface" % Versions.scalaJSVersion,
+//      testFrameworks := Seq(new TestFramework("otest.runner.Framework"))
+//    )
+//    .tupledWithTests
+//
+
+    lazy val otest = crossProject.in(file("otest")).configure(xp("otest", _))
+      .jsConfigure(_.copy(id = "otestSJS"))
+    .settings(organization := "biz.cgta")
+//    .settings(CompilerPlugins.macrosPlugin)
+    .settings(PublishSets.settings: _*)
+    .settings(publishMavenStyle := true)
+    .settings(libraryDependencies += Libs.scalaReflect % scalaVersion.value)
+    .jvmSettings(
       libraryDependencies += "org.scala-sbt" % "test-interface" % "1.0",
       libraryDependencies += "org.scala-js" %% "scalajs-stubs" % Versions.scalaJSVersion % "provided"
     )
-    .mapSjs(_.enablePlugins(ScalaJSPlugin))
-    .settingsSjs(
+    .jsSettings(
       libraryDependencies += "org.scala-js" %% "scalajs-test-interface" % Versions.scalaJSVersion,
       testFrameworks := Seq(new TestFramework("otest.runner.Framework"))
     )
-    .tupledWithTests
+
+    lazy val otestJVM = otest.jvm
+    lazy val otestSJS = otest.js
+
 
   object ReleaseProcess {
 
@@ -98,7 +134,7 @@ object Build extends sbt.Build {
         loop(tasks.toList, st0)
       }
 
-      lazy val otests = Seq(otestJvm, otestSjs)
+      lazy val otests = Seq(otestJVM, otestSJS)
 
       lazy val runTestOtest = ReleaseStep(
         action = runAllTasks(otests.map(test in Test in _): _*)(_),
@@ -140,9 +176,8 @@ object Build extends sbt.Build {
 
 
   lazy val root = Project("root", file("."))
-    .aggregate(otestJvm, otestSjs)
-    .settings(crossScalaVersions := Seq("2.10.2", "2.11.1"))
-    .settings(OsCgtaSbtPlugin.basicSettings: _*)
+    .aggregate(otestJVM, otestSJS)
+    .settings(crossScalaVersions := Seq("2.11.7"))
     .settings(sbtrelease.ReleasePlugin.releaseSettings: _*)
     .settings(ReleaseProcess.settings: _*)
     .settings(publish :=())

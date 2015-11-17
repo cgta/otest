@@ -1,6 +1,6 @@
 package cgta.otest
 
-import scala.reflect.macros.Context
+import scala.reflect.macros.blackbox.Context
 
 //////////////////////////////////////////////////////////////
 // Copyright (c) 2014 Ben Jackman, Jeff Gomberg
