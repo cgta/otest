@@ -31,8 +31,7 @@ press close
 press release
 
 #Bump version to next SNAPSHOT version:
-  examples/project/plugins.sbt
-  examples/project/ExampleBuild.scala
+e otest-examples/project/ExamplesBuild.scala
 
 #Run Test
 bin/test
