@@ -1,10 +1,10 @@
-# otest 0.2.1 - Unit Testing for Scala and ScalaJs
+# otest 0.2.2 - Unit Testing for Scala and ScalaJs
 
 Its suites are very similar to FunSuites from ScalaTest and its assertions simply throw `cgta.otest.AssertionFailure` when they fail.
 
 It was inspired by [utest](https://github.com/lihaoyi/utest), but designed to fit into our legacy codebase, with minimal refactoring.
 
-It currently is built targeting `Scala 2.10` & `Scala 2.11` as well as  `ScalaJs 0.6.0`
+It currently is built targeting `Scala 2.11` as well as  `ScalaJs 0.6.5`
 
 Motivation
 ==========
@@ -94,7 +94,7 @@ In a ScalaJvm project:
 add the following to the `build.sbt`:
 
 ```scala
-libraryDependencies += "biz.cgta" %% "otest-jvm" % "0.2.1" % "test",
+libraryDependencies += "biz.cgta" %% "otest" % "0.2.2" % "test",
 
 testFrameworks := Seq(new TestFramework("cgta.otest.runner.OtestSbtFramework"))
 ```
@@ -105,7 +105,7 @@ In a ScalaJs project:
 add the following to the `build.sbt`:
 
 ```scala
-libraryDependencies += "biz.cgta" %%%! "otest-sjs" % "0.2.1" % "test"
+libraryDependencies += "biz.cgta" %%% "otest" % "0.2.2" % "test"
 
 testFrameworks := Seq(new TestFramework("cgta.otest.runner.OtestSbtFramework"))
 
@@ -113,7 +113,7 @@ testFrameworks := Seq(new TestFramework("cgta.otest.runner.OtestSbtFramework"))
 scalaJSStage in Test := FastOptStage
 ```
 
-*NOTE: The triple '%%%!' in the version string here, this is added to sbt by the scalaJs plugin. Whereas %% handles binary incompitabilites between versions of Scalac, %%% goes one step further and ensures compatibility between ScalaJs versions by adding a tag like `_sjs0.5` to the artifact id as well.*
+*NOTE: The triple '%%%' in the version string here, this is added to sbt by the scalaJs plugin. Whereas %% handles binary incompitabilites between versions of Scalac, %%% goes one step further and ensures compatibility between ScalaJs versions by adding a tag like `_sjs0.5` to the artifact id as well.*
 
 Building otest
 ==============
