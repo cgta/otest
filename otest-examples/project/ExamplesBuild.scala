@@ -30,7 +30,7 @@ object ExamplesBuild extends Build {
   //  lazy val exampleTestsJvm = exampleTestsX.jvm
   //  lazy val exampleTestsSjs = exampleTestsX.sjs
 
-  lazy val otestVersion = "0.2.4-SNAPSHOT"
+  lazy val otestVersion = "0.2.5-SNAPSHOT"
 
   lazy val otestExamples = crossProject.in(file("example-tests")).configure(xp("example-tests", _))
     .jsConfigure(_.copy(id = "otestExamplesSJS"))
