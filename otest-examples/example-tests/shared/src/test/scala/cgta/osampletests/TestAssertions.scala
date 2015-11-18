@@ -1,7 +1,7 @@
 package cgta.osampletests
 
 import cgta.otest.Asserts
-import cgta.otest.{AssertionFailure, FunSuite}
+import cgta.otest.{AssertionFailureException, FunSuite}
 
 
 //////////////////////////////////////////////////////////////
@@ -103,7 +103,7 @@ object TestAssertions extends FunSuite {
         f
         Assert.fail("Expected an AssertionFailure")
       } catch {
-        case e: AssertionFailure =>
+        case e: AssertionFailureException =>
           Assert.isEquals(
             msg,
             e.getMessage)

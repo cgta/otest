@@ -45,7 +45,7 @@ object TestResults {
     override def status(): Status = Status.Failure
   }
   case class FailedAssertion(
-    name: String, e: AssertionFailure, duration: Long)(implicit val taskDef: TaskDef) extends Failed {
+    name: String, e: AssertionFailureException, duration: Long)(implicit val taskDef: TaskDef) extends Failed {
     override val isFailed = true
     override def throwable(): OptionalThrowable = new OptionalThrowable(e)
     override def status(): Status = Status.Failure

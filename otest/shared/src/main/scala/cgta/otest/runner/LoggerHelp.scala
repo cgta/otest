@@ -120,7 +120,23 @@ object LoggerHelp {
 
           r match {
             case f: FailedBad =>
-            case f: FailedAssertion => logException(f.e)
+              //Failed bad tests are actually expected to fail
+            case f: FailedAssertion =>
+              f.e match {
+                case e : SimpleAssertionException =>
+                  val acStr = e.actual.toString
+                  val exStr = e.expected.toString
+                  logger.redError(s"Expected `A` ${e.op} `B`")
+                  logger.redError(s"A: $exStr")
+                  logger.redError(s"B: $acStr")
+                  if (e.clues.nonEmpty) {
+                    logger.redError("Clues:")
+                    e.clues.foreach(c => logger.redError(c.toString))
+                  }
+                  logTraceStr(trace(e.getStackTrace.map(Right(_))))
+                case e =>
+                  logException(e)
+              }
             case f: FailedUnexpectedException => logException(f.e)
             case f: FailedFatalException => logException(f.e)
             case f: FailedWithEitherTrace => logEitherTrace(f.trace)

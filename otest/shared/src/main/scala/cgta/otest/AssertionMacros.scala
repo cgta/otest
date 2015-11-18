@@ -27,11 +27,11 @@ object AssertionMacros {
         }
       } catch {
         case t: Throwable if cgta.otest.CatchableThrowable(t) =>
-          throw cgta.otest.AssertionFailure.intercept($tname, Some(t))
+          throw cgta.otest.AssertionFailureException.intercept($tname, Some(t))
       }
       _cAugHt match {
         case scala.Some(e) => e
-        case scala.None => throw cgta.otest.AssertionFailure.intercept($tname, None)
+        case scala.None => throw cgta.otest.AssertionFailureException.intercept($tname, None)
       }
       """
     c.Expr[T](res)
@@ -51,11 +51,11 @@ object AssertionMacros {
         }
       } catch {
         case t: Throwable if cgta.otest.CatchableThrowable(t) =>
-          throw cgta.otest.AssertionFailure.intercept($tname, Some(t), ..$clues)
+          throw cgta.otest.AssertionFailureException.intercept($tname, Some(t), ..$clues)
       }
       _cAugHt match {
         case scala.Some(e) => e
-        case scala.None => throw cgta.otest.AssertionFailure.intercept($tname, None, ..$clues)
+        case scala.None => throw cgta.otest.AssertionFailureException.intercept($tname, None, ..$clues)
       }
       """
     c.Expr[T](res)

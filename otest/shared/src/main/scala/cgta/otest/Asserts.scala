@@ -34,51 +34,51 @@ case class CanAssertEq[A, B]()
 
 trait AssertsMixin {
   def isTrue(actual: Boolean, clues: Any*) {
-    if (!actual) throw AssertionFailure.basic("true", actual, "but got", clues: _*)
+    if (!actual) throw AssertionFailureException.basic("true", actual, "but got", clues: _*)
   }
 
   def isFalse(actual: Boolean, clues: Any*) {
-    if (actual) throw AssertionFailure.basic("false", actual, "but got", clues: _*)
+    if (actual) throw AssertionFailureException.basic("false", actual, "but got", clues: _*)
   }
 
   def isEquals[A, B](expected: A, actual: B, clues: Any*)(implicit ev: CanAssertEq[A, B]) {
     if (expected == actual) {
     } else {
-      throw AssertionFailure.basic(expected, actual, "to be equal to", clues: _*)
+      throw AssertionFailureException.basic(expected, actual, "to be equal to", clues: _*)
     }
   }
 
   def isNotEquals[A, B](expected: A, actual: B, clues: Any*)(implicit ev: CanAssertEq[A, B]) {
     if (expected != actual) {
     } else {
-      throw AssertionFailure.basic(expected, actual, "not to be equal to", clues: _*)
+      throw AssertionFailureException.basic(expected, actual, "not to be equal to", clues: _*)
     }
   }
 
   def isAnyEquals(expected: Any, actual: Any, clues: Any*) {
     if (expected == actual) {
     } else {
-      throw AssertionFailure.basic(expected, actual, "to be equal to", clues: _*)
+      throw AssertionFailureException.basic(expected, actual, "to be equal to", clues: _*)
     }
   }
 
   def isNotAnyEquals(expected: Any, actual: Any, clues: Any*) {
     if (expected != actual) {
     } else {
-      throw AssertionFailure.basic(expected, actual, "not be equal to", clues: _*)
+      throw AssertionFailureException.basic(expected, actual, "not be equal to", clues: _*)
     }
   }
 
   def isIdentityEquals(expected: AnyRef, actual: AnyRef, clues: Any*) {
     if (expected eq actual) {
     } else {
-      throw AssertionFailure.basic(expected, actual, "to be identity eq to", clues: _*)
+      throw AssertionFailureException.basic(expected, actual, "to be identity eq to", clues: _*)
     }
   }
 
   def isNotIdentityEquals(expected: AnyRef, actual: AnyRef, clues: Any*) {
     if (expected eq actual) {
-      throw AssertionFailure.basic(expected, actual, "not to be identity eq to", clues: _*)
+      throw AssertionFailureException.basic(expected, actual, "not to be identity eq to", clues: _*)
     } else {
     }
   }
@@ -87,7 +87,7 @@ trait AssertsMixin {
   def isLt[A](a: A, b: A, clues: Any*)(implicit ordering: Ordering[A]) {
     if (ordering.lt(a, b)) {
     } else {
-      throw AssertionFailure.basic(a, b, "to be <", clues: _*)
+      throw AssertionFailureException.basic(a, b, "to be <", clues: _*)
     }
   }
 
@@ -95,7 +95,7 @@ trait AssertsMixin {
   def isLte[A](a: A, b: A, clues: Any*)(implicit ordering: Ordering[A]) {
     if (ordering.lteq(a, b)) {
     } else {
-      throw AssertionFailure.basic(a, b, "to be <=", clues: _*)
+      throw AssertionFailureException.basic(a, b, "to be <=", clues: _*)
     }
   }
 
@@ -103,7 +103,7 @@ trait AssertsMixin {
   def isGt[A](a: A, b: A, clues: Any*)(implicit ordering: Ordering[A]) {
     if (ordering.gt(a, b)) {
     } else {
-      throw AssertionFailure.basic(a, b, "to be >", clues: _*)
+      throw AssertionFailureException.basic(a, b, "to be >", clues: _*)
     }
   }
 
@@ -111,12 +111,12 @@ trait AssertsMixin {
   def isGte[A](a: A, b: A, clues: Any*)(implicit ordering: Ordering[A]) {
     if (ordering.gteq(a, b)) {
     } else {
-      throw AssertionFailure.basic(a, b, "to be >=", clues: _*)
+      throw AssertionFailureException.basic(a, b, "to be >=", clues: _*)
     }
   }
 
   def fail(msg: String = null): Nothing = {
-    throw AssertionFailure.fail(msg)
+    throw AssertionFailureException.fail(msg)
   }
 
   def intercepts[T](body: Unit): T = macro AssertionMacros.intercepts[T]

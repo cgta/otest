@@ -71,7 +71,7 @@ class OtestTask(
         test.body()
         st.addResult(if (test.bad) FailedBad(test.name, durMs) else Passed(test.name, durMs))
       } catch {
-        case e: AssertionFailure =>
+        case e: AssertionFailureException =>
           st.addResult(if (test.bad) Passed(test.name, durMs) else FailedAssertion(test.name, e, durMs))
         case e if CatchableThrowable(e) =>
           st.addResult(FailedUnexpectedException(test.name, e, durMs))
