@@ -126,6 +126,7 @@ object LoggerHelp {
                 case e : SimpleAssertionException =>
                   val acStr = e.actual.toString
                   val exStr = e.expected.toString
+                  logTraceStr(trace(e.getStackTrace.map(Right(_))))
                   logger.redError(s"Expected `A` ${e.op} `B`")
                   logger.redError(s"A: $exStr")
                   logger.redError(s"B: $acStr")
@@ -133,7 +134,6 @@ object LoggerHelp {
                     logger.redError("Clues:")
                     e.clues.foreach(c => logger.redError(c.toString))
                   }
-                  logTraceStr(trace(e.getStackTrace.map(Right(_))))
                 case e =>
                   logException(e)
               }
