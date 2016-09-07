@@ -30,13 +30,13 @@ object ExamplesBuild extends Build {
   //  lazy val exampleTestsJvm = exampleTestsX.jvm
   //  lazy val exampleTestsSjs = exampleTestsX.sjs
 
-  lazy val otestVersion = "0.2.5-SNAPSHOT"
+  lazy val otestVersion = "0.2.6-SNAPSHOT"
 
   lazy val otestExamples = crossProject.in(file("example-tests")).configure(xp("example-tests", _))
     .jsConfigure(_.copy(id = "otestExamplesSJS"))
     .settings(publishMavenStyle := true)
     .settings(
-      scalaVersion := "2.11.7"
+      scalaVersion := "2.12.0-RC1"
     )
     .jvmSettings(
       libraryDependencies += "biz.cgta" %% "otest" % otestVersion % "test",

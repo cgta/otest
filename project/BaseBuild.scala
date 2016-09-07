@@ -18,7 +18,7 @@ object BaseBuild extends Build {
   )
 
   lazy val scalacSettings = Seq[Setting[_]](
-    scalaVersion := "2.11.7",
+    scalaVersion := "2.11.8",
     scalacOptions += "-deprecation",
     scalacOptions += "-unchecked",
     scalacOptions += "-feature",
