@@ -1,10 +1,10 @@
-# otest 0.2.4 - Unit Testing for Scala and ScalaJs
+# otest 0.2.5 - Unit Testing for Scala and ScalaJs
 
 Its suites are very similar to FunSuites from ScalaTest and its assertions simply throw `cgta.otest.AssertionFailure` when they fail.
 
 It was inspired by [utest](https://github.com/lihaoyi/utest), but designed to fit into our legacy codebase, with minimal refactoring.
 
-It currently is built targeting `Scala 2.11` as well as  `ScalaJs 0.6.5`
+It currently is built targeting `Scala 2.11`, `scala 2.12` as well as  `ScalaJs 0.6.12`
 
 Motivation
 ==========
@@ -94,7 +94,7 @@ In a ScalaJvm project:
 add the following to the `build.sbt`:
 
 ```scala
-libraryDependencies += "biz.cgta" %% "otest" % "0.2.4" % "test",
+libraryDependencies += "biz.cgta" %% "otest" % "0.2.5" % "test",
 
 testFrameworks := Seq(new TestFramework("cgta.otest.runner.OtestSbtFramework"))
 ```
@@ -105,7 +105,7 @@ In a ScalaJs project:
 add the following to the `build.sbt`:
 
 ```scala
-libraryDependencies += "biz.cgta" %%% "otest" % "0.2.4" % "test"
+libraryDependencies += "biz.cgta" %%% "otest" % "0.2.5" % "test"
 
 testFrameworks := Seq(new TestFramework("cgta.otest.runner.OtestSbtFramework"))
 
