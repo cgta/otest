@@ -26,7 +26,7 @@ object AssertionFailureException {
         new InterceptAssertionException(
           s"Expected to intercept [$expectedTypeName] but nothing was thrown. Clues [$cluesStr]", null)
       case Some(unexpected) =>
-        val unexpectedTypeName = unexpected.getClass.toString
+        val unexpectedTypeName = try {unexpected.getClass.toString} catch {case e: Throwable => s"unknown class ${e.toString}"}
         new InterceptAssertionException(
           s"Expected to intercept [$expectedTypeName] but caught [$unexpectedTypeName]. Clues [$cluesStr]", unexpected)
     }

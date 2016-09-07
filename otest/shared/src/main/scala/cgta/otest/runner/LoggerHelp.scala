@@ -52,7 +52,7 @@ object LoggerHelp {
             first = false
             loop(itr)
           case Right(ste) =>
-            val steStr = ste.toString
+            val steStr = ""+ste
             if (isScalaJS) {
               lb += "  at " + steStr
               loop(itr)
@@ -124,15 +124,15 @@ object LoggerHelp {
             case f: FailedAssertion =>
               f.e match {
                 case e : SimpleAssertionException =>
-                  val acStr = e.actual.toString
-                  val exStr = e.expected.toString
+                  val acStr = ""+e.actual
+                  val exStr = ""+e.expected
                   logTraceStr(trace(e.getStackTrace.map(Right(_))))
                   logger.redError(s"Expected `A` ${e.op} `B`")
                   logger.redError(s"A: $exStr")
                   logger.redError(s"B: $acStr")
                   if (e.clues.nonEmpty) {
                     logger.redError("Clues:")
-                    e.clues.foreach(c => logger.redError(c.toString))
+                    e.clues.foreach(c => logger.redError(""+c))
                   }
                 case e =>
                   logException(e)
