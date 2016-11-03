@@ -20,7 +20,7 @@ object Build extends sbt.Build {
 //  //  org.slf4j.LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME).asInstanceOf[(ch.qos.logback.classic.Logger)].setLevel(ch.qos.logback.classic.Level.INFO)
   object Versions {
     //Change in plugins too!!
-    val scalaJSVersion = "0.6.12"
+    val scalaJSVersion = "0.6.13"
   }
 
 
@@ -177,7 +177,7 @@ object Build extends sbt.Build {
 
   lazy val root = Project("root", file("."))
     .aggregate(otestJVM, otestSJS)
-    .settings(crossScalaVersions := Seq("2.11.8", "2.12.0-RC1"))
+    .settings(crossScalaVersions := Seq("2.11.8", "2.12.0"))
     .settings(sbtrelease.ReleasePlugin.releaseSettings: _*)
     .settings(ReleaseProcess.settings: _*)
     .settings(publish :=())

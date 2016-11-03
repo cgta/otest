@@ -4,7 +4,7 @@ Its suites are very similar to FunSuites from ScalaTest and its assertions simpl
 
 It was inspired by [utest](https://github.com/lihaoyi/utest), but designed to fit into our legacy codebase, with minimal refactoring.
 
-It currently is built targeting `Scala 2.11`, `scala 2.12` as well as  `ScalaJs 0.6.12`
+It currently is built targeting `Scala 2.11`, `scala 2.12` as well as  `ScalaJs 0.6.13`
 
 Motivation
 ==========

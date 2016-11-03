@@ -36,7 +36,7 @@ object ExamplesBuild extends Build {
     .jsConfigure(_.copy(id = "otestExamplesSJS"))
     .settings(publishMavenStyle := true)
     .settings(
-      scalaVersion := "2.12.0-RC1"
+      scalaVersion := "2.12.0"
     )
     .jvmSettings(
       libraryDependencies += "biz.cgta" %% "otest" % otestVersion % "test",
