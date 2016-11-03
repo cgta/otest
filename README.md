@@ -1,4 +1,4 @@
-# otest 0.2.5 - Unit Testing for Scala and ScalaJs
+# otest 0.2.6 - Unit Testing for Scala and ScalaJs
 
 Its suites are very similar to FunSuites from ScalaTest and its assertions simply throw `cgta.otest.AssertionFailure` when they fail.
 
